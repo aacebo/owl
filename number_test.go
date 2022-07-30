@@ -42,3 +42,15 @@ func TestNumberMinMax(t *testing.T) {
 		t.Fatal("should be invalid")
 	}
 }
+
+func TestNumberEqual(t *testing.T) {
+	s := Number[float32]().Equal(1000)
+
+	if errors := s.Validate(1000); len(errors) > 0 {
+		t.Fatal("should not fail validation")
+	}
+
+	if errors := s.Validate(50); len(errors) == 0 {
+		t.Fatal("should be invalid")
+	}
+}

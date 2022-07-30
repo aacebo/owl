@@ -41,6 +41,18 @@ func (self *NumberSchema[T]) Max(max T) *NumberSchema[T] {
 	return self
 }
 
+func (self *NumberSchema[T]) Equal(equal T) *NumberSchema[T] {
+	self.operations = append(
+		self.operations,
+		NewOperation(fmt.Sprintf("must be equal to %v", equal), func(v T) bool {
+			return v == equal
+		}),
+	)
+
+	self.index++
+	return self
+}
+
 func (self *NumberSchema[T]) Message(v string) *NumberSchema[T] {
 	if self.index > -1 {
 		self.operations[self.index].Message = v
