@@ -2,20 +2,20 @@ package owl
 
 import "testing"
 
-func TestNumberMin(t *testing.T) {
-	s := Number[int]().Min(0)
+func TestIntMin(t *testing.T) {
+	s := Int().Min(0)
 
 	if errors := s.Validate(0); len(errors) > 0 {
 		t.Fatal(errors[0].Message)
 	}
 
-	if errors := s.Validate(-1); len(errors) == 0 {
+	if errors := s.Validate(int32(-1)); len(errors) == 0 {
 		t.Fatal("should validate min of 0")
 	}
 }
 
-func TestNumberMessage(t *testing.T) {
-	s := Number[int]().Min(0).Message("a failure message")
+func TestIntMessage(t *testing.T) {
+	s := Int().Min(0).Message("a failure message")
 	errors := s.Validate(-1)
 
 	if len(errors) == 0 {
@@ -27,8 +27,8 @@ func TestNumberMessage(t *testing.T) {
 	}
 }
 
-func TestNumberMinMax(t *testing.T) {
-	s := Number[int]().Min(0).Max(100)
+func TestIntMinMax(t *testing.T) {
+	s := Int().Min(0).Max(100)
 
 	if errors := s.Validate(1); len(errors) > 0 {
 		t.Fatal("should not fail validation")
@@ -43,14 +43,18 @@ func TestNumberMinMax(t *testing.T) {
 	}
 }
 
-func TestNumberEqual(t *testing.T) {
-	s := Number[float32]().Equal(1000)
+func TestIntEqual(t *testing.T) {
+	s := Int().Equal(1000)
 
 	if errors := s.Validate(1000); len(errors) > 0 {
+		for _, err := range errors {
+			t.Log(err.Message)
+		}
+
 		t.Fatal("should not fail validation")
 	}
 
-	if errors := s.Validate(50); len(errors) == 0 {
+	if errors := s.Validate(float32(50)); len(errors) == 0 {
 		t.Fatal("should be invalid")
 	}
 }

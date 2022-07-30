@@ -1,12 +1,12 @@
 package owl
 
-type Operation[T any] struct {
+type Operation struct {
 	Message string
-	fn      func(v T) bool
+	fn      func(v any) (any, bool)
 }
 
-func NewOperation[T any](message string, fn func(v T) bool) *Operation[T] {
-	v := Operation[T]{
+func NewOperation(message string, fn func(v any) (any, bool)) *Operation {
+	v := Operation{
 		Message: message,
 		fn:      fn,
 	}
@@ -14,6 +14,6 @@ func NewOperation[T any](message string, fn func(v T) bool) *Operation[T] {
 	return &v
 }
 
-func (self *Operation[T]) Eval(v T) bool {
+func (self *Operation) Eval(v any) (any, bool) {
 	return self.fn(v)
 }
