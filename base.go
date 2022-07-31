@@ -1,6 +1,7 @@
 package owl
 
 type Schema interface {
+	IsRequired() bool
 	Validate(v any) (any, []*Error)
 }
 
@@ -18,6 +19,10 @@ func (self *BaseSchema) AddOperation(op *Operation) *BaseSchema {
 func (self *BaseSchema) Required() *BaseSchema {
 	self.required = true
 	return self
+}
+
+func (self *BaseSchema) IsRequired() bool {
+	return self.required
 }
 
 func (self *BaseSchema) Message(message string) *BaseSchema {

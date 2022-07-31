@@ -1,6 +1,7 @@
 package owl
 
 import (
+	"fmt"
 	"reflect"
 )
 
@@ -45,8 +46,16 @@ func (self *StructSchema) Validate(v any) (any, []*Error) {
 
 	for key, schema := range self.keys {
 		field := value.FieldByName(key)
-		_, errs := schema.Validate(field.Interface())
-		errors = append(errors, errs...)
+
+		if !field.IsZero() && field.IsValid() {
+			_, errs := schema.Validate(field.Interface())
+			errors = append(errors, errs...)
+		} else if schema.IsRequired() {
+			errors = append(
+				errors,
+				NewError("Struct", fmt.Sprintf("%s is a required field", key), []string{}),
+			)
+		}
 	}
 
 	return v, errors

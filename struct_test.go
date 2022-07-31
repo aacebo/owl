@@ -47,4 +47,16 @@ func TestStruct(t *testing.T) {
 
 		t.Fatal("should have one error")
 	}
+
+	_, errors = s.Validate(&BTestStruct{
+		A: 50,
+	})
+
+	if len(errors) != 0 {
+		for _, err := range errors {
+			t.Log(err.Message)
+		}
+
+		t.Fatal("should be valid")
+	}
 }
