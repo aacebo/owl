@@ -6,16 +6,6 @@ type BaseSchema struct {
 	operations []*Operation
 }
 
-func Base(name string, op *Operation) *BaseSchema {
-	v := BaseSchema{
-		name:       name,
-		index:      0,
-		operations: []*Operation{op},
-	}
-
-	return &v
-}
-
 func (self *BaseSchema) AddOperation(op *Operation) *BaseSchema {
 	self.operations = append(self.operations, op)
 	self.index++

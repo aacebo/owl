@@ -5,22 +5,22 @@ import (
 )
 
 type IntSchema struct {
-	base *BaseSchema
+	BaseSchema
 }
 
 func Int() *IntSchema {
-	v := IntSchema{
-		base: Base("Int", NewOperation("must be an integer", func(v any) (any, bool) {
-			value, ok := v.(int)
-			return value, ok
-		})),
-	}
+	v := IntSchema{}
+	v.name = "Int"
+	v.operations = []*Operation{NewOperation("must be an integer", func(v any) (any, bool) {
+		value, ok := v.(int)
+		return value, ok
+	})}
 
 	return &v
 }
 
 func (self *IntSchema) Min(min int) *IntSchema {
-	self.base.AddOperation(NewOperation(fmt.Sprintf("must be at least %d", min), func(v any) (any, bool) {
+	self.AddOperation(NewOperation(fmt.Sprintf("must be at least %d", min), func(v any) (any, bool) {
 		return v, v.(int) >= min
 	}))
 
@@ -28,7 +28,7 @@ func (self *IntSchema) Min(min int) *IntSchema {
 }
 
 func (self *IntSchema) Max(max int) *IntSchema {
-	self.base.AddOperation(NewOperation(fmt.Sprintf("must be at most %d", max), func(v any) (any, bool) {
+	self.AddOperation(NewOperation(fmt.Sprintf("must be at most %d", max), func(v any) (any, bool) {
 		return v, v.(int) <= max
 	}))
 
@@ -36,7 +36,7 @@ func (self *IntSchema) Max(max int) *IntSchema {
 }
 
 func (self *IntSchema) Equal(equal int) *IntSchema {
-	self.base.AddOperation(NewOperation(fmt.Sprintf("must be equal to %d", equal), func(v any) (any, bool) {
+	self.AddOperation(NewOperation(fmt.Sprintf("must be equal to %d", equal), func(v any) (any, bool) {
 		return v, v.(int) == equal
 	}))
 
@@ -44,10 +44,6 @@ func (self *IntSchema) Equal(equal int) *IntSchema {
 }
 
 func (self *IntSchema) Message(message string) *IntSchema {
-	self.base.Message(message)
+	self.BaseSchema.Message(message)
 	return self
-}
-
-func (self *IntSchema) Validate(v any) []*Error {
-	return self.base.Validate(v)
 }
