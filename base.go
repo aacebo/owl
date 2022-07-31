@@ -34,7 +34,7 @@ func (self *BaseSchema) Validate(v any) []*Error {
 
 	for _, op := range self.operations {
 		if v, valid = op.Eval(v); !valid {
-			errors = append(errors, NewError(self.name, op.message))
+			errors = append(errors, NewError(self.name, op.message, []string{}))
 		}
 	}
 
