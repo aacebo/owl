@@ -33,7 +33,7 @@ func TestStruct(t *testing.T) {
 		t.Fatal("should have one error")
 	}
 
-	errors = s.Validate(BTestStruct{
+	errors = s.Validate(&BTestStruct{
 		A: 50,
 		B: CTestStruct{
 			One: 50,

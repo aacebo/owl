@@ -17,11 +17,15 @@ func Struct(keys StructKeys) *StructSchema {
 	v.name = "Struct"
 	v.keys = keys
 	v.operations = []*Operation{NewOperation("must be a structure", func(v any) (any, bool) {
-		if typeOf := reflect.TypeOf(v).Kind(); typeOf == reflect.Pointer {
-			return *v.(*any), reflect.TypeOf(*v.(*any)).Kind() == reflect.Struct
+		typeOf := reflect.TypeOf(v).Kind()
+
+		if typeOf == reflect.Pointer {
+			typeValue := reflect.Indirect(reflect.ValueOf(v))
+			typeOf = typeValue.Kind()
+			return typeValue.Interface(), typeOf == reflect.Struct
 		}
 
-		return v, reflect.TypeOf(v).Kind() == reflect.Struct
+		return v, typeOf == reflect.Struct
 	})}
 
 	return &v
@@ -38,7 +42,7 @@ func (self *StructSchema) Required() *StructSchema {
 }
 
 func (self *StructSchema) Validate(v any) []*Error {
-	errors := self.BaseSchema.Validate(&v)
+	errors := self.BaseSchema.Validate(v)
 
 	if len(errors) > 0 {
 		return errors
