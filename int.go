@@ -19,6 +19,16 @@ func Int() *IntSchema {
 	return &v
 }
 
+func (self *IntSchema) Message(message string) *IntSchema {
+	self.BaseSchema.Message(message)
+	return self
+}
+
+func (self *IntSchema) Required() *IntSchema {
+	self.BaseSchema.Required()
+	return self
+}
+
 func (self *IntSchema) Min(min int) *IntSchema {
 	self.AddOperation(NewOperation(fmt.Sprintf("must be at least %d", min), func(v any) (any, bool) {
 		return v, v.(int) >= min
@@ -40,10 +50,5 @@ func (self *IntSchema) Equal(equal int) *IntSchema {
 		return v, v.(int) == equal
 	}))
 
-	return self
-}
-
-func (self *IntSchema) Message(message string) *IntSchema {
-	self.BaseSchema.Message(message)
 	return self
 }

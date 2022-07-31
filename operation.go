@@ -1,16 +1,12 @@
 package owl
 
 type Operation struct {
-	Message string
+	message string
 	fn      func(v any) (any, bool)
 }
 
 func NewOperation(message string, fn func(v any) (any, bool)) *Operation {
-	v := Operation{
-		Message: message,
-		fn:      fn,
-	}
-
+	v := Operation{message, fn}
 	return &v
 }
 
