@@ -17,15 +17,8 @@ func Struct(keys StructKeys) *StructSchema {
 	v.name = "Struct"
 	v.keys = keys
 	v.operations = []*Operation{NewOperation("must be a structure", func(v any) (any, bool) {
-		typeOf := reflect.TypeOf(v).Kind()
-
-		if typeOf == reflect.Pointer {
-			typeValue := reflect.Indirect(reflect.ValueOf(v))
-			typeOf = typeValue.Kind()
-			return typeValue.Interface(), typeOf == reflect.Struct
-		}
-
-		return v, typeOf == reflect.Struct
+		value, typeOf := getTypeValue(v)
+		return value.Interface(), typeOf.Kind() == reflect.Struct
 	})}
 
 	return &v
@@ -41,32 +34,24 @@ func (self *StructSchema) Required() *StructSchema {
 	return self
 }
 
-func (self *StructSchema) Validate(v any) []*Error {
-	errors := self.BaseSchema.Validate(v)
+func (self *StructSchema) Validate(v any) (any, []*Error) {
+	v, errors := self.BaseSchema.Validate(v)
 
 	if len(errors) > 0 {
-		return errors
+		return v, errors
 	}
 
-	typeOf := reflect.TypeOf(v)
-	var typeValue reflect.Value
+	value, typeOf := getTypeValue(v)
 
-	if typeOf.Kind() != reflect.Pointer {
-		typeValue = reflect.ValueOf(v)
-	} else {
-		typeValue = reflect.Indirect(reflect.ValueOf(v))
-	}
-
-	rr := reflect.TypeOf(typeValue.Interface())
-
-	for i := 0; i < rr.NumField(); i++ {
-		fieldName := rr.Field(i).Name
+	for i := 0; i < typeOf.NumField(); i++ {
+		fieldName := typeOf.Field(i).Name
 		schema, ok := self.keys[fieldName]
 
 		if ok {
-			errors = append(errors, schema.Validate(typeValue.Field(i).Interface())...)
+			_, errs := schema.Validate(value.Field(i).Interface())
+			errors = append(errors, errs...)
 		}
 	}
 
-	return errors
+	return v, errors
 }

@@ -24,7 +24,7 @@ func TestStruct(t *testing.T) {
 		}),
 	})
 
-	errors := s.Validate(ATestStruct{
+	_, errors := s.Validate(ATestStruct{
 		A: 50,
 		B: 1000,
 	})
@@ -33,7 +33,7 @@ func TestStruct(t *testing.T) {
 		t.Fatal("should have one error")
 	}
 
-	errors = s.Validate(&BTestStruct{
+	_, errors = s.Validate(&BTestStruct{
 		A: 50,
 		B: CTestStruct{
 			One: 50,

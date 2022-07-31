@@ -1,7 +1,7 @@
 package owl
 
 type Schema interface {
-	Validate(v any) []*Error
+	Validate(v any) (any, []*Error)
 }
 
 type BaseSchema struct {
@@ -28,7 +28,7 @@ func (self *BaseSchema) Message(message string) *BaseSchema {
 	return self
 }
 
-func (self *BaseSchema) Validate(v any) []*Error {
+func (self *BaseSchema) Validate(v any) (any, []*Error) {
 	errors := []*Error{}
 	valid := false
 
@@ -38,5 +38,5 @@ func (self *BaseSchema) Validate(v any) []*Error {
 		}
 	}
 
-	return errors
+	return v, errors
 }
