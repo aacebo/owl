@@ -41,16 +41,12 @@ func (self *StructSchema) Validate(v any) (any, []*Error) {
 		return v, errors
 	}
 
-	value, typeOf := getTypeValue(v)
+	value, _ := getTypeValue(v)
 
-	for i := 0; i < typeOf.NumField(); i++ {
-		fieldName := typeOf.Field(i).Name
-		schema, ok := self.keys[fieldName]
-
-		if ok {
-			_, errs := schema.Validate(value.Field(i).Interface())
-			errors = append(errors, errs...)
-		}
+	for key, schema := range self.keys {
+		field := value.FieldByName(key)
+		_, errs := schema.Validate(field.Interface())
+		errors = append(errors, errs...)
 	}
 
 	return v, errors

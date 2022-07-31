@@ -9,7 +9,7 @@ type ATestStruct struct {
 
 type BTestStruct struct {
 	A int
-	B CTestStruct
+	B *CTestStruct
 }
 
 type CTestStruct struct {
@@ -35,7 +35,7 @@ func TestStruct(t *testing.T) {
 
 	_, errors = s.Validate(&BTestStruct{
 		A: 50,
-		B: CTestStruct{
+		B: &CTestStruct{
 			One: 50,
 		},
 	})
