@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"reflect"
 	"strings"
+
+	"github.com/aacebo/owl/rules"
 )
 
 type owl struct {
@@ -13,8 +15,8 @@ type owl struct {
 func New() *owl {
 	return &owl{
 		rules: map[string]Rule{
-			"required": Required{},
-			"pattern":  Pattern{},
+			"required": rules.Required{},
+			"pattern":  rules.Pattern{},
 		},
 	}
 }

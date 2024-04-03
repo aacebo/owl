@@ -1,4 +1,4 @@
-package owl
+package rules
 
 import (
 	"errors"

@@ -1,4 +1,4 @@
-package owl_test
+package rules_test
 
 import (
 	"testing"
