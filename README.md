@@ -5,3 +5,11 @@
 <p align="center">
 	a zero dependency performant validation library
 </p>
+
+## Rules
+
+### String
+
+| Name			| Description											| Status |
+|---------------|-------------------------------------------------------|--------|
+| pattern		| match regular expression								| ✅		|
