@@ -8,6 +8,10 @@
 
 ## Rules
 
+| Name			| Description											| Status |
+|---------------|-------------------------------------------------------|--------|
+| required		| not nil or zero value									| ✅		|
+
 ### String
 
 | Name			| Description											| Status |

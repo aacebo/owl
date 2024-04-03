@@ -6,24 +6,25 @@ import (
 	"strings"
 )
 
-type Owl struct {
+type owl struct {
 	rules map[string]Rule
 }
 
-func New() *Owl {
-	return &Owl{
+func New() *owl {
+	return &owl{
 		rules: map[string]Rule{
-			"pattern": Pattern{},
+			"required": Required{},
+			"pattern":  Pattern{},
 		},
 	}
 }
 
-func (self *Owl) AddRule(name string, rule Rule) *Owl {
+func (self *owl) AddRule(name string, rule Rule) *owl {
 	self.rules[name] = rule
 	return self
 }
 
-func (self Owl) Validate(v any) []Error {
+func (self owl) Validate(v any) []Error {
 	return self.validate(
 		"",
 		"",
@@ -32,7 +33,7 @@ func (self Owl) Validate(v any) []Error {
 	)
 }
 
-func (self Owl) validate(path string, tag string, parent reflect.Value, value reflect.Value) []Error {
+func (self owl) validate(path string, tag string, parent reflect.Value, value reflect.Value) []Error {
 	errs := []Error{}
 	value = reflect.Indirect(value)
 
@@ -100,7 +101,7 @@ func (self Owl) validate(path string, tag string, parent reflect.Value, value re
 	return errs
 }
 
-func (self Owl) getFieldName(field reflect.StructField) string {
+func (self owl) getFieldName(field reflect.StructField) string {
 	name := field.Name
 
 	if tag := field.Tag.Get("json"); tag != "" {

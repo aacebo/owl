@@ -1,11 +1,11 @@
 package owl
 
-var owl = New()
+var validator = New()
 
 func AddRule(name string, rule Rule) {
-	owl.AddRule(name, rule)
+	validator.AddRule(name, rule)
 }
 
 func Validate(v any) []Error {
-	return owl.Validate(v)
+	return validator.Validate(v)
 }
