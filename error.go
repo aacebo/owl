@@ -1,17 +1,13 @@
 package owl
 
+import "fmt"
+
 type Error struct {
-	Source  string
-	Message string
-	Path    []string
+	Path    string `json:"path"`
+	Keyword string `json:"keyword"`
+	Message string `json:"message"`
 }
 
-func NewError(source string, message string, path []string) *Error {
-	v := Error{
-		Source:  source,
-		Message: message,
-		Path:    path,
-	}
-
-	return &v
+func (self Error) Error() string {
+	return fmt.Sprintf("[%s/%s]: %s", self.Path, self.Keyword, self.Message)
 }
