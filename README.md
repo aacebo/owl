@@ -19,8 +19,8 @@
 	<a href="https://github.com/aacebo/owl/actions/workflows/ci.yml" target="_blank" alt="Build">
 		<img src="https://github.com/aacebo/owl/actions/workflows/ci.yml/badge.svg?branch=main" />
 	</a>
-	<a href="https://codecov.io/gh/owl/jsonschema" target="_blank" alt="codecov">
-		<img src="https://codecov.io/gh/owl/jsonschema/graph/badge.svg?token=ZFJMM1BZVM" />
+	<a href="https://codecov.io/gh/aacebo/owl" > 
+		<img src="https://codecov.io/gh/aacebo/owl/graph/badge.svg?token=9XETRUUQUY" /> 
 	</a>
 </p>
 
