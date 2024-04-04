@@ -5,25 +5,57 @@ import (
 	"reflect"
 	"strings"
 
+	"github.com/aacebo/owl/formats"
 	"github.com/aacebo/owl/rules"
 )
 
 type owl struct {
-	rules map[string]Rule
+	rules   map[string]Rule
+	formats map[string]Formatter
 }
 
 func New() *owl {
-	return &owl{
+	self := &owl{
 		rules: map[string]Rule{
 			"required": rules.Required{},
 			"pattern":  rules.Pattern{},
 		},
+		formats: map[string]Formatter{
+			"date_time": formats.DateTime,
+			"email":     formats.Email,
+			"ipv4":      formats.IPv4,
+			"ipv6":      formats.IPv6,
+			"uri":       formats.URI,
+			"uuid":      formats.UUID,
+		},
 	}
+
+	self.rules["format"] = rules.Format{
+		HasFormat: self.HasFormat,
+		Format:    self.Format,
+	}
+
+	return self
 }
 
 func (self *owl) AddRule(name string, rule Rule) *owl {
 	self.rules[name] = rule
 	return self
+}
+
+func (self *owl) AddFormat(name string, formatter Formatter) *owl {
+	self.formats[name] = formatter
+	return self
+}
+
+func (self owl) HasFormat(name string) bool {
+	_, ok := self.formats[name]
+	return ok
+}
+
+func (self owl) Format(name string, input string) error {
+	handler := self.formats[name]
+	return handler(input)
 }
 
 func (self owl) Validate(v any) []Error {
