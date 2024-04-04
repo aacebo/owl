@@ -20,6 +20,7 @@ func New() *owl {
 			"required": rules.Required{},
 			"pattern":  rules.Pattern{},
 			"min":      rules.Min{},
+			"max":      rules.Max{},
 		},
 		formats: map[string]Formatter{
 			"date_time": formats.DateTime,
