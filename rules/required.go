@@ -7,11 +7,11 @@ import (
 
 type Required struct{}
 
-func (self Required) Select(parent reflect.Value, value reflect.Value) bool {
+func (self Required) Select(schema map[string]string, parent reflect.Value, value reflect.Value) bool {
 	return true
 }
 
-func (self Required) Validate(config string, parent reflect.Value, value reflect.Value) []error {
+func (self Required) Validate(schema map[string]string, parent reflect.Value, value reflect.Value) []error {
 	errs := []error{}
 
 	if !value.IsValid() || value.IsZero() {

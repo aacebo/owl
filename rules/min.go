@@ -11,15 +11,16 @@ var floatType = reflect.TypeFor[float64]()
 
 type Min struct{}
 
-func (self Min) Select(parent reflect.Value, value reflect.Value) bool {
+func (self Min) Select(schema map[string]string, parent reflect.Value, value reflect.Value) bool {
 	return value.CanFloat() || value.CanConvert(floatType) || value.Kind() == reflect.String
 }
 
-func (self Min) Validate(config string, parent reflect.Value, value reflect.Value) []error {
+func (self Min) Validate(schema map[string]string, parent reflect.Value, value reflect.Value) []error {
 	errs := []error{}
+	config, ok := schema["min"]
 
-	if config == "" {
-		errs = append(errs, errors.New("empty config"))
+	if !ok {
+		errs = append(errs, errors.New("must be greater than or equal to 0"))
 		return errs
 	}
 
@@ -36,6 +37,11 @@ func (self Min) validateNumber(config string, value reflect.Value) []error {
 
 	if err != nil {
 		errs = append(errs, err)
+		return errs
+	}
+
+	if min < 0 {
+		errs = append(errs, errors.New("must be greater than or equal to 0"))
 		return errs
 	}
 
@@ -60,6 +66,11 @@ func (self Min) validateString(config string, value reflect.Value) []error {
 
 	if err != nil {
 		errs = append(errs, err)
+		return errs
+	}
+
+	if min < 0 {
+		errs = append(errs, errors.New("config must be greater than or equal to 0"))
 		return errs
 	}
 

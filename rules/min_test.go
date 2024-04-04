@@ -7,6 +7,28 @@ import (
 )
 
 func Test_Min(t *testing.T) {
+	t.Run("config", func(t *testing.T) {
+		t.Run("should error on string", func(t *testing.T) {
+			errs := owl.Validate(struct {
+				A float64 `json:"a" owl:"min=abc"`
+			}{2})
+
+			if len(errs) == 0 {
+				t.Error("should have error")
+			}
+		})
+
+		t.Run("should error on negative", func(t *testing.T) {
+			errs := owl.Validate(struct {
+				A float64 `json:"a" owl:"min=-1"`
+			}{2})
+
+			if len(errs) == 0 {
+				t.Error("should have error")
+			}
+		})
+	})
+
 	t.Run("float", func(t *testing.T) {
 		t.Run("should error", func(t *testing.T) {
 			errs := owl.Validate(struct {

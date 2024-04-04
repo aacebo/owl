@@ -78,17 +78,9 @@ func (self owl) validate(path string, tag string, parent reflect.Value, value re
 	}
 
 	if tag != "" {
-		parts := strings.Split(tag, ",")
+		schema := self.tagToSchema(tag)
 
-		for _, part := range parts {
-			ruleParts := strings.SplitN(part, "=", 2)
-			key := ruleParts[0]
-			config := ""
-
-			if len(ruleParts) == 2 {
-				config = ruleParts[1]
-			}
-
+		for key := range schema {
 			rule, ok := self.rules[key]
 
 			if !ok {
@@ -101,11 +93,11 @@ func (self owl) validate(path string, tag string, parent reflect.Value, value re
 				continue
 			}
 
-			if !rule.Select(parent, value) {
+			if !rule.Select(schema, parent, value) {
 				continue
 			}
 
-			_errs := rule.Validate(config, parent, value)
+			_errs := rule.Validate(schema, parent, value)
 
 			for _, err := range _errs {
 				errs = append(errs, Error{
@@ -149,4 +141,28 @@ func (self owl) getFieldName(field reflect.StructField) string {
 	}
 
 	return name
+}
+
+func (self owl) tagToSchema(tag string) map[string]string {
+	schema := map[string]string{}
+
+	if tag == "" {
+		return schema
+	}
+
+	parts := strings.Split(tag, ",")
+
+	for _, part := range parts {
+		ruleParts := strings.SplitN(part, "=", 2)
+		key := ruleParts[0]
+		config := ""
+
+		if len(ruleParts) == 2 {
+			config = ruleParts[1]
+		}
+
+		schema[key] = config
+	}
+
+	return schema
 }

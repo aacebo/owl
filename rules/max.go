@@ -9,32 +9,45 @@ import (
 
 type Max struct{}
 
-func (self Max) Select(parent reflect.Value, value reflect.Value) bool {
+func (self Max) Select(schema map[string]string, parent reflect.Value, value reflect.Value) bool {
 	return value.CanFloat() || value.CanConvert(floatType) || value.Kind() == reflect.String
 }
 
-func (self Max) Validate(config string, parent reflect.Value, value reflect.Value) []error {
+func (self Max) Validate(schema map[string]string, parent reflect.Value, value reflect.Value) []error {
 	errs := []error{}
 
-	if config == "" {
-		errs = append(errs, errors.New("empty config"))
+	if _, ok := schema["max"]; !ok {
+		errs = append(errs, errors.New("must be greater than or equal to 0"))
 		return errs
 	}
 
 	if value.Kind() == reflect.String {
-		return self.validateString(config, value)
+		return self.validateString(schema, value)
 	}
 
-	return self.validateNumber(config, value)
+	return self.validateNumber(schema, value)
 }
 
-func (self Max) validateNumber(config string, value reflect.Value) []error {
+func (self Max) validateNumber(schema map[string]string, value reflect.Value) []error {
 	errs := []error{}
-	max, err := strconv.ParseFloat(config, 64)
+	max, err := strconv.ParseFloat(schema["max"], 64)
 
 	if err != nil {
 		errs = append(errs, err)
 		return errs
+	}
+
+	if max < 0 {
+		errs = append(errs, errors.New("must be greater than or equal to 0"))
+		return errs
+	}
+
+	if v, ok := schema["min"]; ok {
+		min, err := strconv.ParseFloat(v, 64)
+
+		if err == nil && max < min {
+			errs = append(errs, errors.New("must be greater than or equal to min"))
+		}
 	}
 
 	if value.Kind() != reflect.Float64 && value.CanConvert(floatType) {
@@ -52,13 +65,26 @@ func (self Max) validateNumber(config string, value reflect.Value) []error {
 	return errs
 }
 
-func (self Max) validateString(config string, value reflect.Value) []error {
+func (self Max) validateString(schema map[string]string, value reflect.Value) []error {
 	errs := []error{}
-	max, err := strconv.ParseInt(config, 10, 64)
+	max, err := strconv.ParseInt(schema["max"], 10, 64)
 
 	if err != nil {
 		errs = append(errs, err)
 		return errs
+	}
+
+	if max < 0 {
+		errs = append(errs, errors.New("config must be greater than or equal to 0"))
+		return errs
+	}
+
+	if v, ok := schema["min"]; ok {
+		min, err := strconv.ParseInt(v, 10, 64)
+
+		if err == nil && max < min {
+			errs = append(errs, errors.New("must be greater than or equal to min"))
+		}
 	}
 
 	if max < int64(value.Len()) {

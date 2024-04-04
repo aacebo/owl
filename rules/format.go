@@ -11,14 +11,15 @@ type Format struct {
 	Format    func(string, string) error
 }
 
-func (self Format) Select(parent reflect.Value, value reflect.Value) bool {
+func (self Format) Select(schema map[string]string, parent reflect.Value, value reflect.Value) bool {
 	return value.Kind() == reflect.String
 }
 
-func (self Format) Validate(config string, parent reflect.Value, value reflect.Value) []error {
+func (self Format) Validate(schema map[string]string, parent reflect.Value, value reflect.Value) []error {
 	errs := []error{}
+	config, ok := schema["format"]
 
-	if config == "" {
+	if !ok {
 		errs = append(errs, errors.New("empty config"))
 		return errs
 	}
