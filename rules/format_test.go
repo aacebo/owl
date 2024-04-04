@@ -27,6 +27,16 @@ func Test_Format(t *testing.T) {
 		}
 	})
 
+	t.Run("should succeed on nil", func(t *testing.T) {
+		errs := owl.Validate(struct {
+			A *string `json:"a" owl:"format=email"`
+		}{})
+
+		if len(errs) > 0 {
+			t.Error(errs)
+		}
+	})
+
 	t.Run("should succeed on email", func(t *testing.T) {
 		str := "test@test.com"
 		errs := owl.Validate(struct {
