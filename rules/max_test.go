@@ -33,8 +33,6 @@ func Test_Max(t *testing.T) {
 				A float64 `json:"a" owl:"min=5,max=3"`
 			}{2})
 
-			t.Log(errs)
-
 			if len(errs) == 0 {
 				t.Error("should have error")
 			}
