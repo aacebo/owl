@@ -13,20 +13,20 @@ func (self Pattern) Select(schema map[string]string, parent reflect.Value, value
 	return value.Kind() == reflect.String
 }
 
-func (self Pattern) Validate(schema map[string]string, parent reflect.Value, value reflect.Value) []error {
+func (self Pattern) Validate(schema map[string]string, parent reflect.Value, value reflect.Value) (reflect.Value, []error) {
 	errs := []error{}
 	config, ok := schema["pattern"]
 
 	if !ok {
 		errs = append(errs, errors.New("must be a regular expression"))
-		return errs
+		return value, errs
 	}
 
 	expr, err := regexp.Compile(config)
 
 	if err != nil {
 		errs = append(errs, errors.New("invalid regular expression"))
-		return errs
+		return value, errs
 	}
 
 	if !expr.MatchString(value.String()) {
@@ -37,5 +37,5 @@ func (self Pattern) Validate(schema map[string]string, parent reflect.Value, val
 		)))
 	}
 
-	return errs
+	return value, errs
 }

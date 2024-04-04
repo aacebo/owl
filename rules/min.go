@@ -15,13 +15,13 @@ func (self Min) Select(schema map[string]string, parent reflect.Value, value ref
 	return value.CanFloat() || value.CanConvert(floatType) || value.Kind() == reflect.String
 }
 
-func (self Min) Validate(schema map[string]string, parent reflect.Value, value reflect.Value) []error {
+func (self Min) Validate(schema map[string]string, parent reflect.Value, value reflect.Value) (reflect.Value, []error) {
 	errs := []error{}
 	config, ok := schema["min"]
 
 	if !ok {
 		errs = append(errs, errors.New("must be greater than or equal to 0"))
-		return errs
+		return value, errs
 	}
 
 	if value.Kind() == reflect.String {
@@ -31,18 +31,18 @@ func (self Min) Validate(schema map[string]string, parent reflect.Value, value r
 	return self.validateNumber(config, value)
 }
 
-func (self Min) validateNumber(config string, value reflect.Value) []error {
+func (self Min) validateNumber(config string, value reflect.Value) (reflect.Value, []error) {
 	errs := []error{}
 	min, err := strconv.ParseFloat(config, 64)
 
 	if err != nil {
 		errs = append(errs, err)
-		return errs
+		return value, errs
 	}
 
 	if min < 0 {
 		errs = append(errs, errors.New("must be greater than or equal to 0"))
-		return errs
+		return value, errs
 	}
 
 	if value.Kind() != reflect.Float64 && value.CanConvert(floatType) {
@@ -57,21 +57,21 @@ func (self Min) validateNumber(config string, value reflect.Value) []error {
 		)))
 	}
 
-	return errs
+	return value, errs
 }
 
-func (self Min) validateString(config string, value reflect.Value) []error {
+func (self Min) validateString(config string, value reflect.Value) (reflect.Value, []error) {
 	errs := []error{}
 	min, err := strconv.ParseInt(config, 10, 64)
 
 	if err != nil {
 		errs = append(errs, err)
-		return errs
+		return value, errs
 	}
 
 	if min < 0 {
 		errs = append(errs, errors.New("config must be greater than or equal to 0"))
-		return errs
+		return value, errs
 	}
 
 	if min > int64(value.Len()) {
@@ -83,5 +83,5 @@ func (self Min) validateString(config string, value reflect.Value) []error {
 		)))
 	}
 
-	return errs
+	return value, errs
 }

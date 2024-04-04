@@ -29,7 +29,7 @@
 | Name			| Description											| Status |
 |---------------|-------------------------------------------------------|--------|
 | required		| not nil or zero value									| ✅		|
-| default		| default value											| ⌛		|
+| default		| default value											| ✅		|
 | enum			| one of a set of options								| ⌛		|
 
 ### String

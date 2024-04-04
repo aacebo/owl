@@ -11,12 +11,12 @@ func (self Required) Select(schema map[string]string, parent reflect.Value, valu
 	return true
 }
 
-func (self Required) Validate(schema map[string]string, parent reflect.Value, value reflect.Value) []error {
+func (self Required) Validate(schema map[string]string, parent reflect.Value, value reflect.Value) (reflect.Value, []error) {
 	errs := []error{}
 
 	if !value.IsValid() || value.IsZero() {
 		errs = append(errs, errors.New("required"))
 	}
 
-	return errs
+	return value, errs
 }

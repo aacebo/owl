@@ -18,6 +18,7 @@ func New() *owl {
 	self := &owl{
 		rules: map[string]Rule{
 			"required": rules.Required{},
+			"default":  rules.Default{},
 			"pattern":  rules.Pattern{},
 			"min":      rules.Min{},
 			"max":      rules.Max{},
@@ -71,10 +72,10 @@ func (self owl) Validate(v any) []Error {
 
 func (self owl) validate(path string, tag string, parent reflect.Value, value reflect.Value) []Error {
 	errs := []Error{}
-	value = reflect.Indirect(value)
+	input := reflect.Indirect(value)
 
-	if value.Kind() == reflect.Pointer || value.Kind() == reflect.Interface {
-		value = value.Elem()
+	if !input.IsValid() {
+		input = value
 	}
 
 	if tag != "" {
@@ -93,11 +94,15 @@ func (self owl) validate(path string, tag string, parent reflect.Value, value re
 				continue
 			}
 
-			if !rule.Select(schema, parent, value) {
+			if !rule.Select(schema, parent, input) {
 				continue
 			}
 
-			_errs := rule.Validate(schema, parent, value)
+			output, _errs := rule.Validate(schema, parent, input)
+
+			if value.CanAddr() && !value.Equal(output) {
+				value.Set(output)
+			}
 
 			for _, err := range _errs {
 				errs = append(errs, Error{
@@ -109,15 +114,14 @@ func (self owl) validate(path string, tag string, parent reflect.Value, value re
 		}
 	}
 
-	if value.Kind() == reflect.Struct {
-		for i := 0; i < value.NumField(); i++ {
-			field := value.Type().Field(i)
-
+	if input.Kind() == reflect.Struct {
+		for i := 0; i < input.NumField(); i++ {
+			field := input.Type().Field(i)
 			_errs := self.validate(
 				fmt.Sprintf("%s/%s", path, self.getFieldName(field)),
 				field.Tag.Get("owl"),
-				value,
-				value.Field(i),
+				input,
+				input.Field(i),
 			)
 
 			if len(_errs) > 0 {
