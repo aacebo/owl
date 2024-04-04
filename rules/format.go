@@ -19,7 +19,7 @@ func (self Format) Validate(config string, parent reflect.Value, value reflect.V
 	errs := []error{}
 
 	if config == "" {
-		errs = append(errs, errors.New("invalid empty format"))
+		errs = append(errs, errors.New("empty config"))
 		return errs
 	}
 

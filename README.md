@@ -38,14 +38,14 @@
 |---------------|-------------------------------------------------------|--------|
 | pattern		| match regular expression								| ✅		|
 | format		| match format											| ✅		|
-| min			| min length											| ⌛		|
+| min			| min length											| ✅		|
 | max			| max length											| ⌛		|
 
 ### Numeric
 
 | Name			| Description											| Status |
 |---------------|-------------------------------------------------------|--------|
-| min			| minimum												| ⌛		|
+| min			| minimum												| ✅		|
 | max			| maximum												| ⌛		|
 
 ## Formats
