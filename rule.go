@@ -12,7 +12,6 @@ type Rule interface {
 	Validate(
 		schema map[string]string,
 		parent reflect.Value,
-		// _type reflect.Type,
 		value reflect.Value,
 	) (reflect.Value, []error)
 }
