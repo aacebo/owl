@@ -16,6 +16,7 @@ type owl struct {
 	formats      map[string]Formatter
 	transforms   map[reflect.Type]Transform
 	dependencies map[string][]string
+	errs         []Error
 }
 
 func New() *owl {
@@ -71,39 +72,37 @@ func (self owl) Format(name string, input string) error {
 	return handler(input)
 }
 
-func (self owl) Validate(v any) []Error {
+func (self *owl) Validate(v any) []Error {
+	self.errs = []Error{}
 	value := reflect.Indirect(reflect.ValueOf(v))
 
-	return self.validateStruct(
+	self.validateStruct(
 		"",
 		value,
 		value,
 	)
+
+	return self.errs
 }
 
-func (self owl) validateStruct(path string, root reflect.Value, value reflect.Value) []Error {
-	errs := []Error{}
-
+func (self *owl) validateStruct(path string, root reflect.Value, value reflect.Value) {
 	if value.Kind() != reflect.Struct || !value.IsValid() {
-		return errs
+		return
 	}
 
 	for i := 0; i < value.NumField(); i++ {
 		field := value.Type().Field(i)
-		errs = append(errs, self.validateField(
+		self.validateField(
 			fmt.Sprintf("%s/%s", path, self.getFieldName(field)),
 			root,
 			value,
 			field,
 			value.Field(i),
-		)...)
+		)
 	}
-
-	return errs
 }
 
-func (self owl) validateField(path string, root reflect.Value, parent reflect.Value, field reflect.StructField, value reflect.Value) []Error {
-	errs := []Error{}
+func (self *owl) validateField(path string, root reflect.Value, parent reflect.Value, field reflect.StructField, value reflect.Value) {
 	tag := field.Tag.Get("owl")
 	ctx := &context{
 		root:      root,
@@ -125,14 +124,14 @@ func (self owl) validateField(path string, root reflect.Value, parent reflect.Va
 				for _, dep := range dependsOn {
 					if _, ok := schema[dep]; ok && !visited[dep] {
 						ctx.rule = dep
-						errs = append(errs, self.validate(path, ctx)...)
+						self.validate(path, ctx)
 						visited[dep] = true
 					}
 				}
 			}
 
 			ctx.rule = key
-			errs = append(errs, self.validate(path, ctx)...)
+			self.validate(path, ctx)
 			visited[key] = true
 		}
 	}
@@ -140,28 +139,25 @@ func (self owl) validateField(path string, root reflect.Value, parent reflect.Va
 	value = ctx.CoerceValue()
 
 	if value.Kind() == reflect.Struct {
-		errs = append(errs, self.validateStruct(
+		self.validateStruct(
 			path,
 			root,
 			value,
-		)...)
+		)
 	}
-
-	return errs
 }
 
-func (self owl) validate(path string, ctx *context) []Error {
-	errs := []Error{}
+func (self *owl) validate(path string, ctx *context) {
 	rule, ok := self.rules[ctx.rule]
 
 	if !ok {
-		errs = append(errs, Error{
+		self.errs = append(self.errs, Error{
 			Path:    path,
 			Keyword: ctx.rule,
 			Message: "not found",
 		})
 
-		return errs
+		return
 	}
 
 	if transform, ok := self.transforms[ctx.value.Type()]; ok {
@@ -169,14 +165,12 @@ func (self owl) validate(path string, ctx *context) []Error {
 	}
 
 	for _, err := range rule(ctx) {
-		errs = append(errs, Error{
+		self.errs = append(self.errs, Error{
 			Path:    path,
 			Keyword: ctx.rule,
 			Message: err.Error(),
 		})
 	}
-
-	return errs
 }
 
 func (self owl) getFieldName(field reflect.StructField) string {

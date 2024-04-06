@@ -13,7 +13,6 @@ run:
 fmt:
 	gofmt -w ./
 
-.PHONY: test
 test:
 	go clean -testcache
 	go test ./... -cover -coverprofile=coverage.out
@@ -27,4 +26,6 @@ test.cov:
 
 test.bench:
 	go clean -testcache
-	go test ./... -bench=. -benchmem
+	go test ./... -run=None -bench=. -benchmem
+
+.PHONY: test
