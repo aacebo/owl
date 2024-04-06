@@ -11,7 +11,7 @@ func Max(ctx Context) []error {
 	errs := []error{}
 	value := ctx.CoerceValue()
 
-	if value.Kind() == reflect.Invalid {
+	if !value.IsValid() || value.IsZero() {
 		return errs
 	}
 

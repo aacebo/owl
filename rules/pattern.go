@@ -12,7 +12,7 @@ func Pattern(ctx Context) []error {
 	value := ctx.CoerceValue()
 	param := ctx.Param()
 
-	if value.Kind() == reflect.Invalid {
+	if !value.IsValid() || value.IsZero() {
 		return errs
 	}
 
