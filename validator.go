@@ -15,7 +15,7 @@ type owl struct {
 }
 
 func New() *owl {
-	self := &owl{
+	return &owl{
 		rules: map[string]rules.Rule{
 			"required": rules.Required,
 			"default":  rules.Default,
@@ -33,8 +33,6 @@ func New() *owl {
 			"uuid":      formats.UUID,
 		},
 	}
-
-	return self
 }
 
 func (self *owl) AddRule(name string, rule rules.Rule) *owl {
