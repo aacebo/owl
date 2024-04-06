@@ -8,8 +8,8 @@ import (
 
 var validator = New()
 
-func AddRule(name string, rule rules.Rule) *owl {
-	return validator.AddRule(name, rule)
+func AddRule(name string, rule rules.Rule, dependsOn ...string) *owl {
+	return validator.AddRule(name, rule, dependsOn...)
 }
 
 func AddTransform(t reflect.Type, fn Transform) *owl {

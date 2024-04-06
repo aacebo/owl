@@ -12,20 +12,21 @@ import (
 )
 
 type owl struct {
-	rules      map[string]rules.Rule
-	formats    map[string]Formatter
-	transforms map[reflect.Type]Transform
+	rules        map[string]rules.Rule
+	formats      map[string]Formatter
+	transforms   map[reflect.Type]Transform
+	dependencies map[string][]string
 }
 
 func New() *owl {
 	return &owl{
 		rules: map[string]rules.Rule{
 			"default":  rules.Default,
-			"required": rules.Required,
 			"pattern":  rules.Pattern,
 			"format":   rules.Format,
 			"min":      rules.Min,
 			"max":      rules.Max,
+			"required": rules.Required,
 		},
 		formats: map[string]Formatter{
 			"date_time": formats.DateTime,
@@ -38,11 +39,15 @@ func New() *owl {
 		transforms: map[reflect.Type]Transform{
 			reflect.TypeFor[driver.Valuer](): transforms.Valuer,
 		},
+		dependencies: map[string][]string{
+			"required": {"default"},
+		},
 	}
 }
 
-func (self *owl) AddRule(name string, rule rules.Rule) *owl {
+func (self *owl) AddRule(name string, rule rules.Rule, dependsOn ...string) *owl {
 	self.rules[name] = rule
+	self.dependencies[name] = dependsOn
 	return self
 }
 
@@ -110,36 +115,35 @@ func (self owl) validateField(path string, root reflect.Value, parent reflect.Va
 	}
 
 	if tag != "" {
+		visited := map[string]bool{}
 		schema := self.tagToSchema(tag)
 		ctx.schema = schema
 
 		for key := range schema {
+			// run dependencies first
+			if dependsOn, ok := self.dependencies[key]; ok {
+				for _, dep := range dependsOn {
+					if _, ok := schema[dep]; ok && !visited[dep] {
+						ctx.rule = dep
+						_errs := self.validate(path, ctx)
+
+						if len(_errs) > 0 {
+							errs = append(errs, _errs...)
+						}
+
+						visited[dep] = true
+					}
+				}
+			}
+
 			ctx.rule = key
-			validate, ok := self.rules[key]
+			_errs := self.validate(path, ctx)
 
-			if !ok {
-				errs = append(errs, Error{
-					Path:    path,
-					Keyword: key,
-					Message: "not found",
-				})
-
-				continue
+			if len(_errs) > 0 {
+				errs = append(errs, _errs...)
 			}
 
-			if transform, ok := self.transforms[value.Type()]; ok {
-				ctx.value = transform(value)
-			}
-
-			_errs := validate(ctx)
-
-			for _, err := range _errs {
-				errs = append(errs, Error{
-					Path:    path,
-					Keyword: key,
-					Message: err.Error(),
-				})
-			}
+			visited[key] = true
 		}
 	}
 
@@ -155,6 +159,37 @@ func (self owl) validateField(path string, root reflect.Value, parent reflect.Va
 		if len(_errs) > 0 {
 			errs = append(errs, _errs...)
 		}
+	}
+
+	return errs
+}
+
+func (self owl) validate(path string, ctx *context) []Error {
+	errs := []Error{}
+	rule, ok := self.rules[ctx.rule]
+
+	if !ok {
+		errs = append(errs, Error{
+			Path:    path,
+			Keyword: ctx.rule,
+			Message: "not found",
+		})
+
+		return errs
+	}
+
+	if transform, ok := self.transforms[ctx.value.Type()]; ok {
+		ctx.value = transform(ctx.value)
+	}
+
+	_errs := rule(ctx)
+
+	for _, err := range _errs {
+		errs = append(errs, Error{
+			Path:    path,
+			Keyword: ctx.rule,
+			Message: err.Error(),
+		})
 	}
 
 	return errs
