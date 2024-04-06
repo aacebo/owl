@@ -1,17 +1,20 @@
 package owl
 
 import (
+	"database/sql/driver"
 	"fmt"
 	"reflect"
 	"strings"
 
 	"github.com/aacebo/owl/formats"
 	"github.com/aacebo/owl/rules"
+	"github.com/aacebo/owl/types"
 )
 
 type owl struct {
 	rules   map[string]rules.Rule
 	formats map[string]Formatter
+	types   map[reflect.Type]types.Type
 }
 
 func New() *owl {
@@ -32,11 +35,19 @@ func New() *owl {
 			"uri":       formats.URI,
 			"uuid":      formats.UUID,
 		},
+		types: map[reflect.Type]types.Type{
+			reflect.TypeFor[driver.Valuer](): types.Valuer,
+		},
 	}
 }
 
 func (self *owl) AddRule(name string, rule rules.Rule) *owl {
 	self.rules[name] = rule
+	return self
+}
+
+func (self *owl) AddType(t reflect.Type, fn types.Type) *owl {
+	self.types[t] = fn
 	return self
 }
 
@@ -103,6 +114,7 @@ func (self owl) validateField(path string, root reflect.Value, parent reflect.Va
 		ctx.schema = schema
 
 		for key := range schema {
+			ctx.rule = key
 			validate, ok := self.rules[key]
 
 			if !ok {
@@ -115,7 +127,10 @@ func (self owl) validateField(path string, root reflect.Value, parent reflect.Va
 				continue
 			}
 
-			ctx.rule = key
+			if t, ok := self.types[value.Type()]; ok {
+				ctx.value = t(value)
+			}
+
 			_errs := validate(ctx)
 
 			for _, err := range _errs {
