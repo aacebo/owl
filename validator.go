@@ -8,13 +8,13 @@ import (
 
 	"github.com/aacebo/owl/formats"
 	"github.com/aacebo/owl/rules"
-	"github.com/aacebo/owl/types"
+	"github.com/aacebo/owl/transforms"
 )
 
 type owl struct {
-	rules   map[string]rules.Rule
-	formats map[string]Formatter
-	types   map[reflect.Type]types.Type
+	rules      map[string]rules.Rule
+	formats    map[string]Formatter
+	transforms map[reflect.Type]Transform
 }
 
 func New() *owl {
@@ -35,8 +35,8 @@ func New() *owl {
 			"uri":       formats.URI,
 			"uuid":      formats.UUID,
 		},
-		types: map[reflect.Type]types.Type{
-			reflect.TypeFor[driver.Valuer](): types.Valuer,
+		transforms: map[reflect.Type]Transform{
+			reflect.TypeFor[driver.Valuer](): transforms.Valuer,
 		},
 	}
 }
@@ -46,8 +46,8 @@ func (self *owl) AddRule(name string, rule rules.Rule) *owl {
 	return self
 }
 
-func (self *owl) AddType(t reflect.Type, fn types.Type) *owl {
-	self.types[t] = fn
+func (self *owl) AddType(t reflect.Type, fn Transform) *owl {
+	self.transforms[t] = fn
 	return self
 }
 
@@ -127,8 +127,8 @@ func (self owl) validateField(path string, root reflect.Value, parent reflect.Va
 				continue
 			}
 
-			if t, ok := self.types[value.Type()]; ok {
-				ctx.value = t(value)
+			if transform, ok := self.transforms[value.Type()]; ok {
+				ctx.value = transform(value)
 			}
 
 			_errs := validate(ctx)

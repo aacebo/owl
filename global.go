@@ -4,7 +4,6 @@ import (
 	"reflect"
 
 	"github.com/aacebo/owl/rules"
-	"github.com/aacebo/owl/types"
 )
 
 var validator = New()
@@ -13,7 +12,7 @@ func AddRule(name string, rule rules.Rule) *owl {
 	return validator.AddRule(name, rule)
 }
 
-func AddType(t reflect.Type, fn types.Type) *owl {
+func AddType(t reflect.Type, fn Transform) *owl {
 	return validator.AddType(t, fn)
 }
 

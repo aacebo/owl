@@ -1,4 +1,4 @@
-package types_test
+package transforms_test
 
 import (
 	"database/sql/driver"
