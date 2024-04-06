@@ -90,17 +90,13 @@ func (self owl) validateStruct(path string, root reflect.Value, value reflect.Va
 
 	for i := 0; i < value.NumField(); i++ {
 		field := value.Type().Field(i)
-		_errs := self.validateField(
+		errs = append(errs, self.validateField(
 			fmt.Sprintf("%s/%s", path, self.getFieldName(field)),
 			root,
 			value,
 			field,
 			value.Field(i),
-		)
-
-		if len(_errs) > 0 {
-			errs = append(errs, _errs...)
-		}
+		)...)
 	}
 
 	return errs
@@ -129,24 +125,14 @@ func (self owl) validateField(path string, root reflect.Value, parent reflect.Va
 				for _, dep := range dependsOn {
 					if _, ok := schema[dep]; ok && !visited[dep] {
 						ctx.rule = dep
-						_errs := self.validate(path, ctx)
-
-						if len(_errs) > 0 {
-							errs = append(errs, _errs...)
-						}
-
+						errs = append(errs, self.validate(path, ctx)...)
 						visited[dep] = true
 					}
 				}
 			}
 
 			ctx.rule = key
-			_errs := self.validate(path, ctx)
-
-			if len(_errs) > 0 {
-				errs = append(errs, _errs...)
-			}
-
+			errs = append(errs, self.validate(path, ctx)...)
 			visited[key] = true
 		}
 	}
@@ -154,15 +140,11 @@ func (self owl) validateField(path string, root reflect.Value, parent reflect.Va
 	value = ctx.CoerceValue()
 
 	if value.Kind() == reflect.Struct {
-		_errs := self.validateStruct(
+		errs = append(errs, self.validateStruct(
 			path,
 			root,
 			value,
-		)
-
-		if len(_errs) > 0 {
-			errs = append(errs, _errs...)
-		}
+		)...)
 	}
 
 	return errs
@@ -186,9 +168,7 @@ func (self owl) validate(path string, ctx *context) []Error {
 		ctx.value = transform(ctx.value)
 	}
 
-	_errs := rule(ctx)
-
-	for _, err := range _errs {
+	for _, err := range rule(ctx) {
 		errs = append(errs, Error{
 			Path:    path,
 			Keyword: ctx.rule,
@@ -225,13 +205,13 @@ func (self owl) tagToSchema(tag string) map[string]string {
 	for _, part := range parts {
 		ruleParts := strings.SplitN(part, "=", 2)
 		key := ruleParts[0]
-		config := ""
+		param := ""
 
 		if len(ruleParts) == 2 {
-			config = ruleParts[1]
+			param = ruleParts[1]
 		}
 
-		schema[key] = config
+		schema[key] = param
 	}
 
 	return schema

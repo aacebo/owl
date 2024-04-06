@@ -7,7 +7,7 @@ import (
 )
 
 func Test_Default(t *testing.T) {
-	t.Run("should error on no config", func(t *testing.T) {
+	t.Run("should error on no param", func(t *testing.T) {
 		errs := owl.Validate(struct {
 			A *string `json:"a" owl:"default"`
 		}{})

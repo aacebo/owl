@@ -81,7 +81,7 @@ func maxString(ctx Context) []error {
 	}
 
 	if max < 0 {
-		errs = append(errs, errors.New("config must be greater than or equal to 0"))
+		errs = append(errs, errors.New("param must be greater than or equal to 0"))
 		return errs
 	}
 
