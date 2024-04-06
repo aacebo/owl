@@ -16,11 +16,11 @@ type Address struct {
 func Test_Validator(t *testing.T) {
 	t.Run("should succeed with nested complex structure", func(t *testing.T) {
 		errs := owl.Validate(struct {
-			Name    string  `json:"name" owl:"required,min=3"`
-			Address Address `json:"address"`
+			Name    string   `json:"name" owl:"required,min=3"`
+			Address *Address `json:"address"`
 		}{
 			Name: "hii",
-			Address: Address{
+			Address: &Address{
 				Street: "111 My Street Way",
 				City:   "New York",
 				State:  "New York",

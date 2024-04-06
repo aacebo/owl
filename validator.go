@@ -84,6 +84,10 @@ func (self owl) Validate(v any) []Error {
 func (self owl) validateStruct(path string, root reflect.Value, value reflect.Value) []Error {
 	errs := []Error{}
 
+	if value.Kind() != reflect.Struct || !value.IsValid() {
+		return errs
+	}
+
 	for i := 0; i < value.NumField(); i++ {
 		field := value.Type().Field(i)
 		_errs := self.validateField(
