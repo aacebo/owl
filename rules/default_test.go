@@ -122,4 +122,20 @@ func Test_Default(t *testing.T) {
 			t.Error("should set default value")
 		}
 	})
+
+	t.Run("should succeed with required", func(t *testing.T) {
+		v := struct {
+			A *string `json:"a" owl:"default=123,required"`
+		}{}
+
+		errs := owl.Validate(&v)
+
+		if len(errs) > 0 {
+			t.Error(errs)
+		}
+
+		if v.A == nil || *v.A != "123" {
+			t.Error("should set default value")
+		}
+	})
 }

@@ -17,8 +17,8 @@ type owl struct {
 func New() *owl {
 	return &owl{
 		rules: map[string]rules.Rule{
-			"required": rules.Required,
 			"default":  rules.Default,
+			"required": rules.Required,
 			"pattern":  rules.Pattern,
 			"format":   rules.Format,
 			"min":      rules.Min,
