@@ -139,3 +139,23 @@ func Test_Default(t *testing.T) {
 		}
 	})
 }
+
+func Benchmark_Default(b *testing.B) {
+	b.Run("should succeed", func(b *testing.B) {
+		for i := 0; i < b.N; i++ {
+			v := struct {
+				A *string `json:"a" owl:"default=123"`
+			}{}
+
+			errs := owl.Validate(&v)
+
+			if len(errs) > 0 {
+				b.Error(errs)
+			}
+
+			if v.A == nil || *v.A != "123" {
+				b.Error("should set default value")
+			}
+		}
+	})
+}

@@ -48,3 +48,17 @@ func Test_Pattern(t *testing.T) {
 		}
 	})
 }
+
+func Benchmark_Pattern(b *testing.B) {
+	b.Run("should succeed on numeric", func(b *testing.B) {
+		for i := 0; i < b.N; i++ {
+			errs := owl.Validate(struct {
+				A string `json:"a" owl:"pattern=^[0-9]*$"`
+			}{"123"})
+
+			if len(errs) > 0 {
+				b.Error(errs)
+			}
+		}
+	})
+}

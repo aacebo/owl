@@ -27,4 +27,4 @@ test.cov:
 
 test.bench:
 	go clean -testcache
-	go test ./... -bench=.
+	go test ./... -bench=. -benchmem

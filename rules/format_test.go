@@ -48,3 +48,18 @@ func Test_Format(t *testing.T) {
 		}
 	})
 }
+
+func Benchmark_Format(b *testing.B) {
+	b.Run("should succeed on email", func(b *testing.B) {
+		for i := 0; i < b.N; i++ {
+			str := "test@test.com"
+			errs := owl.Validate(struct {
+				A *string `json:"a" owl:"format=email"`
+			}{&str})
+
+			if len(errs) > 0 {
+				b.Error(errs)
+			}
+		}
+	})
+}

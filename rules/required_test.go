@@ -27,3 +27,17 @@ func Test_Required(t *testing.T) {
 		}
 	})
 }
+
+func Benchmark_Required(b *testing.B) {
+	b.Run("should error on nil", func(b *testing.B) {
+		for i := 0; i < b.N; i++ {
+			errs := owl.Validate(struct {
+				A *string `json:"a" owl:"required"`
+			}{})
+
+			if len(errs) == 0 {
+				b.Error("should have error")
+			}
+		}
+	})
+}
