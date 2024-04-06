@@ -46,7 +46,7 @@ func (self *owl) AddRule(name string, rule rules.Rule) *owl {
 	return self
 }
 
-func (self *owl) AddType(t reflect.Type, fn Transform) *owl {
+func (self *owl) AddTransform(t reflect.Type, fn Transform) *owl {
 	self.transforms[t] = fn
 	return self
 }
