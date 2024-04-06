@@ -2,21 +2,15 @@ package rules
 
 import (
 	"errors"
-	"reflect"
 )
 
-type Required struct{}
-
-func (self Required) Select(schema map[string]string, parent reflect.Value, value reflect.Value) bool {
-	return true
-}
-
-func (self Required) Validate(schema map[string]string, parent reflect.Value, value reflect.Value) (reflect.Value, []error) {
+func Required(ctx Context) []error {
 	errs := []error{}
+	value := ctx.CoerceValue()
 
 	if !value.IsValid() || value.IsZero() {
 		errs = append(errs, errors.New("required"))
 	}
 
-	return value, errs
+	return errs
 }

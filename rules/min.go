@@ -9,40 +9,44 @@ import (
 
 var floatType = reflect.TypeFor[float64]()
 
-type Min struct{}
-
-func (self Min) Select(schema map[string]string, parent reflect.Value, value reflect.Value) bool {
-	return value.CanFloat() || value.CanConvert(floatType) || value.Kind() == reflect.String
-}
-
-func (self Min) Validate(schema map[string]string, parent reflect.Value, value reflect.Value) (reflect.Value, []error) {
+func Min(ctx Context) []error {
 	errs := []error{}
-	config, ok := schema["min"]
+	value := ctx.CoerceValue()
 
-	if !ok {
+	if value.Kind() == reflect.Invalid {
+		return errs
+	}
+
+	if !value.CanFloat() && !value.CanConvert(floatType) && value.Kind() != reflect.String {
+		errs = append(errs, errors.New("invalid type"))
+		return errs
+	}
+
+	if ctx.Param() == "" {
 		errs = append(errs, errors.New("must be greater than or equal to 0"))
-		return value, errs
+		return errs
 	}
 
 	if value.Kind() == reflect.String {
-		return self.validateString(config, value)
+		return minString(ctx)
 	}
 
-	return self.validateNumber(config, value)
+	return minNumber(ctx)
 }
 
-func (self Min) validateNumber(config string, value reflect.Value) (reflect.Value, []error) {
+func minNumber(ctx Context) []error {
 	errs := []error{}
-	min, err := strconv.ParseFloat(config, 64)
+	value := ctx.CoerceValue()
+	min, err := strconv.ParseFloat(ctx.Param(), 64)
 
 	if err != nil {
 		errs = append(errs, err)
-		return value, errs
+		return errs
 	}
 
 	if min < 0 {
 		errs = append(errs, errors.New("must be greater than or equal to 0"))
-		return value, errs
+		return errs
 	}
 
 	if value.Kind() != reflect.Float64 && value.CanConvert(floatType) {
@@ -57,21 +61,22 @@ func (self Min) validateNumber(config string, value reflect.Value) (reflect.Valu
 		)))
 	}
 
-	return value, errs
+	return errs
 }
 
-func (self Min) validateString(config string, value reflect.Value) (reflect.Value, []error) {
+func minString(ctx Context) []error {
 	errs := []error{}
-	min, err := strconv.ParseInt(config, 10, 64)
+	value := ctx.CoerceValue()
+	min, err := strconv.ParseInt(ctx.Param(), 10, 64)
 
 	if err != nil {
 		errs = append(errs, err)
-		return value, errs
+		return errs
 	}
 
 	if min < 0 {
 		errs = append(errs, errors.New("config must be greater than or equal to 0"))
-		return value, errs
+		return errs
 	}
 
 	if min > int64(value.Len()) {
@@ -83,5 +88,5 @@ func (self Min) validateString(config string, value reflect.Value) (reflect.Valu
 		)))
 	}
 
-	return value, errs
+	return errs
 }

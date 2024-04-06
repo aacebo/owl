@@ -6,36 +6,37 @@ import (
 	"reflect"
 )
 
-type Format struct {
-	HasFormat func(string) bool
-	Format    func(string, string) error
-}
-
-func (self Format) Select(schema map[string]string, parent reflect.Value, value reflect.Value) bool {
-	return value.Kind() == reflect.String
-}
-
-func (self Format) Validate(schema map[string]string, parent reflect.Value, value reflect.Value) (reflect.Value, []error) {
+func Format(ctx Context) []error {
 	errs := []error{}
-	config, ok := schema["format"]
+	value := ctx.CoerceValue()
+	param := ctx.Param()
 
-	if !ok {
-		errs = append(errs, errors.New("empty config"))
-		return value, errs
+	if value.Kind() == reflect.Invalid {
+		return errs
 	}
 
-	if !self.HasFormat(config) {
+	if value.Kind() != reflect.String {
+		errs = append(errs, errors.New(`can only be used on "string" type`))
+		return errs
+	}
+
+	if param == "" {
+		errs = append(errs, errors.New("param is required"))
+		return errs
+	}
+
+	if !ctx.HasFormat(param) {
 		errs = append(errs, errors.New(fmt.Sprintf(
 			`format "%s" not found`,
-			config,
+			param,
 		)))
 
-		return value, errs
+		return errs
 	}
 
-	if err := self.Format(config, value.String()); err != nil {
+	if err := ctx.Format(param, value.String()); err != nil {
 		errs = append(errs, err)
 	}
 
-	return value, errs
+	return errs
 }

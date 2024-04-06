@@ -10,18 +10,19 @@ import (
 )
 
 type owl struct {
-	rules   map[string]Rule
+	rules   map[string]rules.Rule
 	formats map[string]Formatter
 }
 
 func New() *owl {
 	self := &owl{
-		rules: map[string]Rule{
-			"required": rules.Required{},
-			"default":  rules.Default{},
-			"pattern":  rules.Pattern{},
-			"min":      rules.Min{},
-			"max":      rules.Max{},
+		rules: map[string]rules.Rule{
+			"required": rules.Required,
+			"default":  rules.Default,
+			"pattern":  rules.Pattern,
+			"format":   rules.Format,
+			"min":      rules.Min,
+			"max":      rules.Max,
 		},
 		formats: map[string]Formatter{
 			"date_time": formats.DateTime,
@@ -33,15 +34,10 @@ func New() *owl {
 		},
 	}
 
-	self.rules["format"] = rules.Format{
-		HasFormat: self.HasFormat,
-		Format:    self.Format,
-	}
-
 	return self
 }
 
-func (self *owl) AddRule(name string, rule Rule) *owl {
+func (self *owl) AddRule(name string, rule rules.Rule) *owl {
 	self.rules[name] = rule
 	return self
 }
@@ -62,27 +58,54 @@ func (self owl) Format(name string, input string) error {
 }
 
 func (self owl) Validate(v any) []Error {
-	return self.validate(
+	value := reflect.Indirect(reflect.ValueOf(v))
+
+	return self.validateStruct(
 		"",
-		"",
-		reflect.ValueOf(nil),
-		reflect.ValueOf(v),
+		value,
+		value,
 	)
 }
 
-func (self owl) validate(path string, tag string, parent reflect.Value, value reflect.Value) []Error {
+func (self owl) validateStruct(path string, root reflect.Value, value reflect.Value) []Error {
 	errs := []Error{}
-	input := reflect.Indirect(value)
 
-	if !input.IsValid() {
-		input = value
+	for i := 0; i < value.NumField(); i++ {
+		field := value.Type().Field(i)
+		_errs := self.validateField(
+			fmt.Sprintf("%s/%s", path, self.getFieldName(field)),
+			root,
+			value,
+			field,
+			value.Field(i),
+		)
+
+		if len(_errs) > 0 {
+			errs = append(errs, _errs...)
+		}
+	}
+
+	return errs
+}
+
+func (self owl) validateField(path string, root reflect.Value, parent reflect.Value, field reflect.StructField, value reflect.Value) []Error {
+	errs := []Error{}
+	tag := field.Tag.Get("owl")
+	ctx := &context{
+		root:      root,
+		parent:    parent,
+		value:     value,
+		field:     field,
+		hasFormat: self.HasFormat,
+		format:    self.Format,
 	}
 
 	if tag != "" {
 		schema := self.tagToSchema(tag)
+		ctx.schema = schema
 
 		for key := range schema {
-			rule, ok := self.rules[key]
+			validate, ok := self.rules[key]
 
 			if !ok {
 				errs = append(errs, Error{
@@ -94,15 +117,8 @@ func (self owl) validate(path string, tag string, parent reflect.Value, value re
 				continue
 			}
 
-			if !rule.Select(schema, parent, input) {
-				continue
-			}
-
-			output, _errs := rule.Validate(schema, parent, input)
-
-			if value.CanAddr() && !value.Equal(output) {
-				value.Set(output)
-			}
+			ctx.rule = key
+			_errs := validate(ctx)
 
 			for _, err := range _errs {
 				errs = append(errs, Error{
@@ -114,19 +130,17 @@ func (self owl) validate(path string, tag string, parent reflect.Value, value re
 		}
 	}
 
-	if input.Kind() == reflect.Struct {
-		for i := 0; i < input.NumField(); i++ {
-			field := input.Type().Field(i)
-			_errs := self.validate(
-				fmt.Sprintf("%s/%s", path, self.getFieldName(field)),
-				field.Tag.Get("owl"),
-				input,
-				input.Field(i),
-			)
+	value = ctx.CoerceValue()
 
-			if len(_errs) > 0 {
-				errs = append(errs, _errs...)
-			}
+	if value.Kind() == reflect.Struct {
+		_errs := self.validateStruct(
+			path,
+			root,
+			value,
+		)
+
+		if len(_errs) > 0 {
+			errs = append(errs, _errs...)
 		}
 	}
 

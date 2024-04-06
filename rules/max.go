@@ -7,42 +7,47 @@ import (
 	"strconv"
 )
 
-type Max struct{}
-
-func (self Max) Select(schema map[string]string, parent reflect.Value, value reflect.Value) bool {
-	return value.CanFloat() || value.CanConvert(floatType) || value.Kind() == reflect.String
-}
-
-func (self Max) Validate(schema map[string]string, parent reflect.Value, value reflect.Value) (reflect.Value, []error) {
+func Max(ctx Context) []error {
 	errs := []error{}
+	value := ctx.CoerceValue()
 
-	if _, ok := schema["max"]; !ok {
+	if value.Kind() == reflect.Invalid {
+		return errs
+	}
+
+	if !value.CanFloat() && !value.CanConvert(floatType) && value.Kind() != reflect.String {
+		errs = append(errs, errors.New("invalid type"))
+		return errs
+	}
+
+	if ctx.Param() == "" {
 		errs = append(errs, errors.New("must be greater than or equal to 0"))
-		return value, errs
+		return errs
 	}
 
 	if value.Kind() == reflect.String {
-		return self.validateString(schema, value)
+		return maxString(ctx)
 	}
 
-	return self.validateNumber(schema, value)
+	return maxNumber(ctx)
 }
 
-func (self Max) validateNumber(schema map[string]string, value reflect.Value) (reflect.Value, []error) {
+func maxNumber(ctx Context) []error {
 	errs := []error{}
-	max, err := strconv.ParseFloat(schema["max"], 64)
+	value := ctx.CoerceValue()
+	max, err := strconv.ParseFloat(ctx.Param(), 64)
 
 	if err != nil {
 		errs = append(errs, err)
-		return value, errs
+		return errs
 	}
 
 	if max < 0 {
 		errs = append(errs, errors.New("must be greater than or equal to 0"))
-		return value, errs
+		return errs
 	}
 
-	if v, ok := schema["min"]; ok {
+	if v, ok := ctx.RuleParam("min"); ok {
 		min, err := strconv.ParseFloat(v, 64)
 
 		if err == nil && max < min {
@@ -62,24 +67,25 @@ func (self Max) validateNumber(schema map[string]string, value reflect.Value) (r
 		)))
 	}
 
-	return value, errs
+	return errs
 }
 
-func (self Max) validateString(schema map[string]string, value reflect.Value) (reflect.Value, []error) {
+func maxString(ctx Context) []error {
 	errs := []error{}
-	max, err := strconv.ParseInt(schema["max"], 10, 64)
+	value := ctx.CoerceValue()
+	max, err := strconv.ParseInt(ctx.Param(), 10, 64)
 
 	if err != nil {
 		errs = append(errs, err)
-		return value, errs
+		return errs
 	}
 
 	if max < 0 {
 		errs = append(errs, errors.New("config must be greater than or equal to 0"))
-		return value, errs
+		return errs
 	}
 
-	if v, ok := schema["min"]; ok {
+	if v, ok := ctx.RuleParam("min"); ok {
 		min, err := strconv.ParseInt(v, 10, 64)
 
 		if err == nil && max < min {
@@ -96,5 +102,5 @@ func (self Max) validateString(schema map[string]string, value reflect.Value) (r
 		)))
 	}
 
-	return value, errs
+	return errs
 }
