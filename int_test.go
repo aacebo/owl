@@ -79,3 +79,43 @@ func Test_Int(t *testing.T) {
 		})
 	})
 }
+
+func ExampleInt() {
+	schema := owl.Int()
+
+	if err := schema.Validate(1); err != nil { // nil
+		panic(err)
+	}
+
+	if err := schema.Validate(1); err != nil { // nil
+		panic(err)
+	}
+
+	if err := schema.Validate("test"); err != nil { // error
+		panic(err)
+	}
+}
+
+func ExampleIntSchema_Min() {
+	schema := owl.Int().Min(5)
+
+	if err := schema.Validate(5); err != nil { // nil
+		panic(err)
+	}
+
+	if err := schema.Validate(4); err != nil { // error
+		panic(err)
+	}
+}
+
+func ExampleIntSchema_Max() {
+	schema := owl.Int().Max(5)
+
+	if err := schema.Validate(5); err != nil { // nil
+		panic(err)
+	}
+
+	if err := schema.Validate(6); err != nil { // error
+		panic(err)
+	}
+}

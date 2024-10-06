@@ -62,3 +62,35 @@ func Test_Time(t *testing.T) {
 		})
 	})
 }
+
+func ExampleTime() {
+	schema := owl.Time()
+
+	if err := schema.Validate(time.Now()); err != nil { // nil
+		panic(err)
+	}
+
+	if err := schema.Validate(time.Now().Format(time.RFC3339)); err != nil { // nil
+		panic(err)
+	}
+
+	if err := schema.Validate("test"); err != nil { // error
+		panic(err)
+	}
+}
+
+func ExampleTimeSchema_Min() {
+	schema := owl.Time().Min(time.Now())
+
+	if err := schema.Validate(time.Now().AddDate(-1, 0, 0)); err != nil { // error
+		panic(err)
+	}
+}
+
+func ExampleTimeSchema_Max() {
+	schema := owl.Time().Max(time.Now())
+
+	if err := schema.Validate(time.Now().AddDate(1, 0, 0)); err != nil { // error
+		panic(err)
+	}
+}

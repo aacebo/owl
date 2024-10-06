@@ -79,3 +79,43 @@ func Test_Float(t *testing.T) {
 		})
 	})
 }
+
+func ExampleFloat() {
+	schema := owl.Float()
+
+	if err := schema.Validate(1.0); err != nil { // nil
+		panic(err)
+	}
+
+	if err := schema.Validate(1); err != nil { // nil
+		panic(err)
+	}
+
+	if err := schema.Validate("test"); err != nil { // error
+		panic(err)
+	}
+}
+
+func ExampleFloatSchema_Min() {
+	schema := owl.Float().Min(5.0)
+
+	if err := schema.Validate(5); err != nil { // nil
+		panic(err)
+	}
+
+	if err := schema.Validate(4.5); err != nil { // error
+		panic(err)
+	}
+}
+
+func ExampleFloatSchema_Max() {
+	schema := owl.Float().Max(5.0)
+
+	if err := schema.Validate(5); err != nil { // nil
+		panic(err)
+	}
+
+	if err := schema.Validate(5.5); err != nil { // error
+		panic(err)
+	}
+}

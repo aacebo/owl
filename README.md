@@ -23,3 +23,19 @@
 		<img src="https://codecov.io/gh/aacebo/owl/graph/badge.svg?token=9XETRUUQUY" /> 
 	</a>
 </p>
+
+# Install
+
+```bash
+go get github.com/aacebo/owl
+```
+
+# Usage
+
+```go
+schema := owl.String().Required()
+
+if err := schema.Validate("..."); err != nil { // nil
+	panic(err)
+}
+```

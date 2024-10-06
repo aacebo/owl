@@ -152,3 +152,87 @@ func Test_String(t *testing.T) {
 		})
 	})
 }
+
+func ExampleString() {
+	schema := owl.String()
+
+	if err := schema.Validate("test"); err != nil { // nil
+		panic(err)
+	}
+
+	if err := schema.Validate(true); err != nil { // error
+		panic(err)
+	}
+}
+
+func ExampleStringSchema_Min() {
+	schema := owl.String().Min(5)
+
+	if err := schema.Validate("tester"); err != nil { // nil
+		panic(err)
+	}
+
+	if err := schema.Validate("test"); err != nil { // error
+		panic(err)
+	}
+}
+
+func ExampleStringSchema_Max() {
+	schema := owl.String().Max(5)
+
+	if err := schema.Validate("test"); err != nil { // nil
+		panic(err)
+	}
+
+	if err := schema.Validate("tester"); err != nil { // error
+		panic(err)
+	}
+}
+
+func ExampleStringSchema_Regex() {
+	schema := owl.String().Regex(regexp.MustCompile("^[0-9a-zA-Z_-]+$"))
+
+	if err := schema.Validate("test"); err != nil { // nil
+		panic(err)
+	}
+
+	if err := schema.Validate("hello world"); err != nil { // error
+		panic(err)
+	}
+}
+
+func ExampleStringSchema_Email() {
+	schema := owl.String().Email()
+
+	if err := schema.Validate("test@gmail.com"); err != nil { // nil
+		panic(err)
+	}
+
+	if err := schema.Validate("test"); err != nil { // error
+		panic(err)
+	}
+}
+
+func ExampleStringSchema_UUID() {
+	schema := owl.String().UUID()
+
+	if err := schema.Validate("afefc1ab-b8f2-4803-8e9a-60515854141a"); err != nil { // nil
+		panic(err)
+	}
+
+	if err := schema.Validate("test"); err != nil { // error
+		panic(err)
+	}
+}
+
+func ExampleStringSchema_URL() {
+	schema := owl.String().URL()
+
+	if err := schema.Validate("https://www.google.com"); err != nil { // nil
+		panic(err)
+	}
+
+	if err := schema.Validate("test"); err != nil { // error
+		panic(err)
+	}
+}

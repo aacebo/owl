@@ -31,3 +31,22 @@ func Test_Union(t *testing.T) {
 		})
 	})
 }
+
+func ExampleUnion() {
+	schema := owl.Union(
+		owl.String().Required(),
+		owl.Int().Required(),
+	)
+
+	if err := schema.Validate("test"); err != nil { // nil
+		panic(err)
+	}
+
+	if err := schema.Validate(1); err != nil { // nil
+		panic(err)
+	}
+
+	if err := schema.Validate(true); err != nil { // error
+		panic(err)
+	}
+}

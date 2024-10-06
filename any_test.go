@@ -43,3 +43,19 @@ func Test_Any(t *testing.T) {
 		})
 	})
 }
+
+func ExampleAny() {
+	schema := owl.Any()
+
+	if err := schema.Validate("..."); err != nil { // nil
+		panic(err)
+	}
+
+	if err := schema.Validate(1); err != nil { // nil
+		panic(err)
+	}
+
+	if err := schema.Validate(true); err != nil { // nil
+		panic(err)
+	}
+}

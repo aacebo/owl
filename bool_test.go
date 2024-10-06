@@ -43,3 +43,19 @@ func Test_Bool(t *testing.T) {
 		})
 	})
 }
+
+func ExampleBool() {
+	schema := owl.Bool()
+
+	if err := schema.Validate(true); err != nil { // nil
+		panic(err)
+	}
+
+	if err := schema.Validate(false); err != nil { // nil
+		panic(err)
+	}
+
+	if err := schema.Validate("test"); err != nil { // error
+		panic(err)
+	}
+}

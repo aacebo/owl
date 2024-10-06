@@ -111,3 +111,24 @@ func Test_Object(t *testing.T) {
 		})
 	})
 }
+
+func ExampleObject() {
+	schema := owl.Object().Field(
+		"email", owl.String().Email().Required(),
+	).Field(
+		"password", owl.String().Min(5).Max(20).Required(),
+	)
+
+	if err := schema.Validate(map[string]any{
+		"email":    "test@test.com",
+		"password": "mytestpassword",
+	}); err != nil { // nil
+		panic(err)
+	}
+
+	if err := schema.Validate(map[string]any{
+		"email": "test@test.com",
+	}); err != nil { // error
+		panic(err)
+	}
+}

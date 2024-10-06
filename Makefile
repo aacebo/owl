@@ -13,6 +13,9 @@ run:
 fmt:
 	gofmt -w ./
 
+make doc:
+	godoc -http=:6060
+
 test:
 	go clean -testcache
 	go test ./... -cover -coverprofile=coverage.out
