@@ -19,11 +19,11 @@ func Float() *FloatSchema {
 		}
 
 		if value.CanConvert(reflect.TypeFor[float64]()) {
-			value.Set(value.Convert(reflect.TypeFor[float64]()))
+			value = value.Convert(reflect.TypeFor[float64]())
 		}
 
 		if value.Kind() != reflect.Float64 {
-			return nil, errors.New("must be a float")
+			return value.Interface(), errors.New("must be a float")
 		}
 
 		return value.Interface(), nil
@@ -60,28 +60,28 @@ func (self *FloatSchema) Enum(values ...float64) *FloatSchema {
 func (self *FloatSchema) Min(min float64) *FloatSchema {
 	return self.Rule("min", min, func(value reflect.Value) (any, error) {
 		if !value.IsValid() {
-			return value, nil
+			return nil, nil
 		}
 
 		if value.Float() < min {
-			return value, fmt.Errorf("must have value of at least %f", min)
+			return value.Interface(), fmt.Errorf("must have value of at least %f", min)
 		}
 
-		return value, nil
+		return value.Interface(), nil
 	})
 }
 
 func (self *FloatSchema) Max(max float64) *FloatSchema {
 	return self.Rule("max", max, func(value reflect.Value) (any, error) {
 		if !value.IsValid() {
-			return value, nil
+			return nil, nil
 		}
 
 		if value.Float() > max {
-			return value, fmt.Errorf("must have value of at most %f", max)
+			return value.Interface(), fmt.Errorf("must have value of at most %f", max)
 		}
 
-		return value, nil
+		return value.Interface(), nil
 	})
 }
 
@@ -90,13 +90,9 @@ func (self FloatSchema) MarshalJSON() ([]byte, error) {
 }
 
 func (self FloatSchema) Validate(value any) error {
-	return self.validate("<root>", reflect.Indirect(reflect.ValueOf(value)))
+	return self.validate("", reflect.ValueOf(value))
 }
 
 func (self FloatSchema) validate(key string, value reflect.Value) error {
-	if err := self.schema.validate(key, value); err != nil {
-		return err
-	}
-
-	return nil
+	return self.schema.validate(key, value)
 }

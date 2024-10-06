@@ -2,6 +2,7 @@ package owl
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"reflect"
 	"time"
@@ -13,7 +14,30 @@ type TimeSchema struct {
 }
 
 func Time() *TimeSchema {
-	return &TimeSchema{Any(), time.RFC3339}
+	self := &TimeSchema{Any(), time.RFC3339}
+	self.Rule("type", self.Type(), func(value reflect.Value) (any, error) {
+		if !value.IsValid() {
+			return nil, nil
+		}
+
+		if value.Kind() != reflect.String && value.Type() != reflect.TypeFor[time.Time]() {
+			return value.Interface(), errors.New("must be a string or time.Time")
+		}
+
+		if value.Kind() == reflect.String {
+			parsed, err := time.Parse(self.layout, value.String())
+
+			if err != nil {
+				return value.Interface(), err
+			}
+
+			value = reflect.ValueOf(parsed)
+		}
+
+		return value.Interface(), nil
+	})
+
+	return self
 }
 
 func (self TimeSchema) Type() string {
@@ -72,27 +96,9 @@ func (self TimeSchema) MarshalJSON() ([]byte, error) {
 }
 
 func (self TimeSchema) Validate(value any) error {
-	return self.validate("<root>", reflect.Indirect(reflect.ValueOf(value)))
+	return self.validate("", reflect.Indirect(reflect.ValueOf(value)))
 }
 
 func (self TimeSchema) validate(key string, value reflect.Value) error {
-	if value.IsValid() && value.Kind() != reflect.String && value.Type() != reflect.TypeFor[time.Time]() {
-		return newError(key, "must be a string or time.Time")
-	}
-
-	if value.IsValid() && value.Kind() == reflect.String {
-		parsed, err := time.Parse(self.layout, value.String())
-
-		if err != nil {
-			return newError(key, err.Error())
-		}
-
-		value = reflect.ValueOf(parsed)
-	}
-
-	if err := self.schema.validate(key, value); err != nil {
-		return err
-	}
-
-	return nil
+	return self.schema.validate(key, value)
 }

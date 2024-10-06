@@ -41,10 +41,10 @@ func (self *AnySchema) Rule(key string, value any, rule RuleFn) *AnySchema {
 func (self *AnySchema) Required() *AnySchema {
 	return self.Rule("required", true, func(value reflect.Value) (any, error) {
 		if !value.IsValid() {
-			return value, errors.New("required")
+			return nil, errors.New("required")
 		}
 
-		return value, nil
+		return value.Interface(), nil
 	})
 }
 
@@ -52,11 +52,11 @@ func (self *AnySchema) Enum(values ...any) *AnySchema {
 	return self.Rule("enum", values, func(value reflect.Value) (any, error) {
 		for _, v := range values {
 			if value.Equal(reflect.Indirect(reflect.ValueOf(v))) {
-				return value, nil
+				return value.Interface(), nil
 			}
 		}
 
-		return value, fmt.Errorf("must be one of %v", values)
+		return nil, fmt.Errorf("must be one of %v", values)
 	})
 }
 
@@ -71,7 +71,7 @@ func (self AnySchema) MarshalJSON() ([]byte, error) {
 }
 
 func (self AnySchema) Validate(value any) error {
-	return self.validate("<root>", reflect.Indirect(reflect.ValueOf(value)))
+	return self.validate("", reflect.Indirect(reflect.ValueOf(value)))
 }
 
 func (self AnySchema) validate(key string, value reflect.Value) error {
@@ -85,9 +85,7 @@ func (self AnySchema) validate(key string, value reflect.Value) error {
 			continue
 		}
 
-		if value.CanSet() {
-			value.Set(reflect.ValueOf(v))
-		}
+		value = reflect.ValueOf(v)
 	}
 
 	if len(err.Errors) > 0 {

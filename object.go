@@ -12,7 +12,20 @@ type ObjectSchema struct {
 }
 
 func Object() *ObjectSchema {
-	return &ObjectSchema{Any(), map[string]Schema{}}
+	self := &ObjectSchema{Any(), map[string]Schema{}}
+	self.Rule("type", self.Type(), func(value reflect.Value) (any, error) {
+		if !value.IsValid() {
+			return nil, nil
+		}
+
+		if value.Kind() != reflect.Struct && value.Kind() != reflect.Map {
+			return value.Interface(), errors.New("must be an object")
+		}
+
+		return value.Interface(), nil
+	})
+
+	return self
 }
 
 func (self ObjectSchema) Type() string {
@@ -39,7 +52,7 @@ func (self ObjectSchema) MarshalJSON() ([]byte, error) {
 }
 
 func (self ObjectSchema) Validate(value any) error {
-	return self.validate("<root>", reflect.Indirect(reflect.ValueOf(value)))
+	return self.validate("", reflect.Indirect(reflect.ValueOf(value)))
 }
 
 func (self ObjectSchema) validate(key string, value reflect.Value) error {
@@ -55,14 +68,11 @@ func (self ObjectSchema) validate(key string, value reflect.Value) error {
 		value = value.Elem()
 	}
 
-	switch value.Kind() {
-	case reflect.Map:
+	if value.Kind() == reflect.Map {
 		return self.validateMap(key, value)
-	case reflect.Struct:
-		return self.validateStruct(key, value)
 	}
 
-	return newError(key, "must be an object")
+	return self.validateStruct(key, value)
 }
 
 func (self ObjectSchema) validateMap(key string, value reflect.Value) error {

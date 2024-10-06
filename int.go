@@ -2,6 +2,7 @@ package owl
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"reflect"
 )
@@ -11,7 +12,24 @@ type IntSchema struct {
 }
 
 func Int() *IntSchema {
-	return &IntSchema{Any()}
+	self := &IntSchema{Any()}
+	self.Rule("type", self.Type(), func(value reflect.Value) (any, error) {
+		if !value.IsValid() {
+			return nil, nil
+		}
+
+		if value.CanConvert(reflect.TypeFor[int]()) {
+			value = value.Convert(reflect.TypeFor[int]())
+		}
+
+		if value.Kind() != reflect.Int {
+			return value.Interface(), errors.New("must be an int")
+		}
+
+		return value.Interface(), nil
+	})
+
+	return self
 }
 
 func (self IntSchema) Type() string {
@@ -42,28 +60,28 @@ func (self *IntSchema) Enum(values ...int) *IntSchema {
 func (self *IntSchema) Min(min int) *IntSchema {
 	return self.Rule("min", min, func(value reflect.Value) (any, error) {
 		if !value.IsValid() {
-			return value, nil
+			return nil, nil
 		}
 
 		if value.Int() < int64(min) {
-			return value, fmt.Errorf("must have value of at least %d", min)
+			return value.Interface(), fmt.Errorf("must have value of at least %d", min)
 		}
 
-		return value, nil
+		return value.Interface(), nil
 	})
 }
 
 func (self *IntSchema) Max(max int) *IntSchema {
 	return self.Rule("max", max, func(value reflect.Value) (any, error) {
 		if !value.IsValid() {
-			return value, nil
+			return nil, nil
 		}
 
 		if value.Int() > int64(max) {
-			return value, fmt.Errorf("must have value of at most %d", max)
+			return value.Interface(), fmt.Errorf("must have value of at most %d", max)
 		}
 
-		return value, nil
+		return value.Interface(), nil
 	})
 }
 
@@ -72,21 +90,9 @@ func (self IntSchema) MarshalJSON() ([]byte, error) {
 }
 
 func (self IntSchema) Validate(value any) error {
-	return self.validate("<root>", reflect.Indirect(reflect.ValueOf(value)))
+	return self.validate("", reflect.ValueOf(value))
 }
 
 func (self IntSchema) validate(key string, value reflect.Value) error {
-	if value.IsValid() && value.CanConvert(reflect.TypeFor[int]()) {
-		value = value.Convert(reflect.TypeFor[int]())
-	}
-
-	if err := self.schema.validate(key, value); err != nil {
-		return err
-	}
-
-	if value.IsValid() && value.Kind() != reflect.Int {
-		return newError(key, "must be an integer")
-	}
-
-	return nil
+	return self.schema.validate(key, value)
 }

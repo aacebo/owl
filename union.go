@@ -2,6 +2,7 @@ package owl
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"reflect"
 	"strings"
@@ -13,7 +14,20 @@ type UnionSchema struct {
 }
 
 func Union(anyOf ...Schema) *UnionSchema {
-	return &UnionSchema{Any(), anyOf}
+	self := &UnionSchema{Any(), anyOf}
+	self.Rule("type", self.Type(), func(value reflect.Value) (any, error) {
+		for _, schema := range self.anyOf {
+			e := schema.Validate(value.Interface())
+
+			if e == nil {
+				return value.Interface(), nil
+			}
+		}
+
+		return value.Interface(), errors.New("must match one or more types in union")
+	})
+
+	return self
 }
 
 func (self UnionSchema) Type() string {
