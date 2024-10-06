@@ -77,7 +77,7 @@ func (self ObjectSchema) validate(key string, value reflect.Value) error {
 }
 
 func (self ObjectSchema) validateMap(key string, value reflect.Value) error {
-	err := newError(key, "")
+	err := newErrorGroup(key)
 	i := value.MapRange()
 
 	for i.Next() {
@@ -101,7 +101,7 @@ func (self ObjectSchema) validateMap(key string, value reflect.Value) error {
 }
 
 func (self ObjectSchema) validateStruct(key string, value reflect.Value) error {
-	err := newError(key, "")
+	err := newErrorGroup(key)
 
 	for i := 0; i < value.NumField(); i++ {
 		field := value.Type().Field(i)

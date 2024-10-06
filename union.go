@@ -50,25 +50,9 @@ func (self UnionSchema) MarshalJSON() ([]byte, error) {
 }
 
 func (self UnionSchema) Validate(value any) error {
-	return self.validate("<root>", reflect.Indirect(reflect.ValueOf(value)))
+	return self.validate("", reflect.Indirect(reflect.ValueOf(value)))
 }
 
 func (self UnionSchema) validate(key string, value reflect.Value) error {
-	if err := self.schema.validate(key, value); err != nil {
-		return err
-	}
-
-	err := newError(key, "must match one or more types in union")
-
-	for _, schema := range self.anyOf {
-		e := schema.validate(key, value)
-
-		if e == nil {
-			return nil
-		}
-
-		err = err.Add(e)
-	}
-
-	return err
+	return self.schema.validate(key, value)
 }

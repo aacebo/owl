@@ -5,22 +5,17 @@ import (
 )
 
 type Error struct {
-	Key     string  `json:"key"`
-	Message string  `json:"message,omitempty"`
-	Errors  []error `json:"errors,omitempty"`
+	Rule    string `json:"rule,omitempty"`
+	Key     string `json:"key,omitempty"`
+	Message string `json:"message,omitempty"`
 }
 
-func newError(key string, message string) Error {
+func newError(rule string, key string, message string) Error {
 	return Error{
+		Rule:    rule,
 		Key:     key,
 		Message: message,
-		Errors:  []error{},
 	}
-}
-
-func (self Error) Add(err error) Error {
-	self.Errors = append(self.Errors, err)
-	return self
 }
 
 func (self Error) Error() string {
