@@ -13,6 +13,7 @@ type ObjectSchema struct {
 
 func Object() *ObjectSchema {
 	self := &ObjectSchema{Any(), map[string]Schema{}}
+	self.Rule("fields", self.fields, nil)
 	self.Rule("type", self.Type(), func(value reflect.Value) (any, error) {
 		if !value.IsValid() {
 			return nil, nil

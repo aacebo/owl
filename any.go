@@ -78,6 +78,10 @@ func (self AnySchema) validate(key string, value reflect.Value) error {
 	err := newError(key, "")
 
 	for _, rule := range self.rules {
+		if rule.Resolve == nil {
+			continue
+		}
+
 		v, e := rule.Resolve(value)
 
 		if e != nil {
