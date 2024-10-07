@@ -12,8 +12,7 @@ func Test_Object(t *testing.T) {
 	t.Run("required", func(t *testing.T) {
 		t.Run("should succeed", func(t *testing.T) {
 			err := owl.Object().Field(
-				"hello",
-				owl.String().Enum("world").Required(),
+				"hello", owl.String().Enum("world").Required(),
 			).Required().Validate(map[string]any{
 				"hello": "world",
 			})
@@ -23,8 +22,28 @@ func Test_Object(t *testing.T) {
 			}
 		})
 
-		t.Run("should fail", func(t *testing.T) {
+		t.Run("should succeed when field nil and not required", func(t *testing.T) {
+			err := owl.Object().Field(
+				"hello", owl.String().Enum("world"),
+			).Required().Validate(map[string]any{})
+
+			if err != nil {
+				t.Fatal(err)
+			}
+		})
+
+		t.Run("should fail when nil", func(t *testing.T) {
 			err := owl.Object().Required().Validate(nil)
+
+			if err == nil {
+				t.Fatal()
+			}
+		})
+
+		t.Run("should fail when required field nil", func(t *testing.T) {
+			err := owl.Object().Fields(map[string]owl.Schema{
+				"hello": owl.String().Required(),
+			}).Required().Validate(map[string]any{})
 
 			if err == nil {
 				t.Fatal()
@@ -51,7 +70,7 @@ func Test_Object(t *testing.T) {
 		t.Run("should fail when schema not found", func(t *testing.T) {
 			err := owl.Object().Field(
 				"hello",
-				owl.Object().Field("hello", owl.String().Enum("world")).Required(),
+				owl.Object().Field("hello", owl.String().Enum("world").Required()).Required(),
 			).Required().Validate(map[string]any{
 				"hello": map[string]any{
 					"hello1": "world",

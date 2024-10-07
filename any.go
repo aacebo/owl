@@ -50,6 +50,10 @@ func (self *AnySchema) Required() *AnySchema {
 
 func (self *AnySchema) Enum(values ...any) *AnySchema {
 	return self.Rule("enum", values, func(value reflect.Value) (any, error) {
+		if !value.IsValid() {
+			return nil, nil
+		}
+
 		for _, v := range values {
 			if value.Equal(reflect.Indirect(reflect.ValueOf(v))) {
 				return value.Interface(), nil
