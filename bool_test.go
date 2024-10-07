@@ -1,6 +1,7 @@
 package owl_test
 
 import (
+	"encoding/json"
 	"testing"
 
 	"github.com/aacebo/owl"
@@ -39,6 +40,21 @@ func Test_Bool(t *testing.T) {
 
 			if err == nil {
 				t.Fatal()
+			}
+		})
+	})
+
+	t.Run("json", func(t *testing.T) {
+		t.Run("serialize", func(t *testing.T) {
+			schema := owl.Bool()
+			b, err := json.Marshal(schema)
+
+			if err != nil {
+				t.Error(err)
+			}
+
+			if string(b) != `{"type":"bool"}` {
+				t.Errorf("expected `%s`, received `%s`", `{"type":"bool"}`, string(b))
 			}
 		})
 	})

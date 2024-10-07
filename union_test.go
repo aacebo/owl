@@ -1,6 +1,7 @@
 package owl_test
 
 import (
+	"encoding/json"
 	"testing"
 
 	"github.com/aacebo/owl"
@@ -27,6 +28,29 @@ func Test_Union(t *testing.T) {
 
 			if err == nil {
 				t.Fatal()
+			}
+		})
+	})
+
+	t.Run("json", func(t *testing.T) {
+		t.Run("serialize", func(t *testing.T) {
+			schema := owl.Union(
+				owl.String().Required(),
+				owl.Int().Required(),
+			)
+
+			b, err := json.Marshal(schema)
+
+			if err != nil {
+				t.Error(err)
+			}
+
+			if string(b) != `{"type":"union[string,int]"}` {
+				t.Errorf(
+					"expected `%s`, received `%s`",
+					`{"type":"union[string,int]"}`,
+					string(b),
+				)
 			}
 		})
 	})

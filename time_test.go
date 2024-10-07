@@ -1,6 +1,7 @@
 package owl_test
 
 import (
+	"encoding/json"
 	"testing"
 	"time"
 
@@ -58,6 +59,25 @@ func Test_Time(t *testing.T) {
 
 			if err == nil {
 				t.Fatal()
+			}
+		})
+	})
+
+	t.Run("json", func(t *testing.T) {
+		t.Run("serialize", func(t *testing.T) {
+			schema := owl.Time()
+			b, err := json.Marshal(schema)
+
+			if err != nil {
+				t.Error(err)
+			}
+
+			if string(b) != `{"type":"time"}` {
+				t.Errorf(
+					"expected `%s`, received `%s`",
+					`{"type":"time"}`,
+					string(b),
+				)
 			}
 		})
 	})

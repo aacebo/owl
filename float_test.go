@@ -1,6 +1,7 @@
 package owl_test
 
 import (
+	"encoding/json"
 	"testing"
 
 	"github.com/aacebo/owl"
@@ -75,6 +76,25 @@ func Test_Float(t *testing.T) {
 
 			if err == nil {
 				t.Fatal()
+			}
+		})
+	})
+
+	t.Run("json", func(t *testing.T) {
+		t.Run("serialize", func(t *testing.T) {
+			schema := owl.Float().Min(1).Max(5)
+			b, err := json.Marshal(schema)
+
+			if err != nil {
+				t.Error(err)
+			}
+
+			if string(b) != `{"max":5,"min":1,"type":"float"}` {
+				t.Errorf(
+					"expected `%s`, received `%s`",
+					`{"max":5,"min":1,"type":"float"}`,
+					string(b),
+				)
 			}
 		})
 	})

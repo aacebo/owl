@@ -1,6 +1,7 @@
 package owl_test
 
 import (
+	"encoding/json"
 	"regexp"
 	"testing"
 
@@ -148,6 +149,25 @@ func Test_String(t *testing.T) {
 
 			if err == nil {
 				t.Fatal()
+			}
+		})
+	})
+
+	t.Run("json", func(t *testing.T) {
+		t.Run("serialize", func(t *testing.T) {
+			schema := owl.String().Min(1).Max(5).Email()
+			b, err := json.Marshal(schema)
+
+			if err != nil {
+				t.Error(err)
+			}
+
+			if string(b) != `{"email":true,"max":5,"min":1,"type":"string"}` {
+				t.Errorf(
+					"expected `%s`, received `%s`",
+					`{"email":true,"max":5,"min":1,"type":"string"}`,
+					string(b),
+				)
 			}
 		})
 	})

@@ -1,6 +1,8 @@
 package owl_test
 
 import (
+	"encoding/json"
+	"regexp"
 	"testing"
 
 	"github.com/aacebo/owl"
@@ -123,6 +125,30 @@ func Test_Object(t *testing.T) {
 
 			if err == nil {
 				t.Fatal()
+			}
+		})
+	})
+
+	t.Run("json", func(t *testing.T) {
+		t.Run("serialize", func(t *testing.T) {
+			schema := owl.Object().Fields(map[string]owl.Schema{
+				"username":     owl.String().Regex(regexp.MustCompile("^[0-9a-zA-Z_-]+$")).Required(),
+				"password":     owl.String().Min(5).Max(20).Required(),
+				"staySignedIn": owl.Bool(),
+			})
+
+			b, err := json.Marshal(schema)
+
+			if err != nil {
+				t.Error(err)
+			}
+
+			if string(b) != `{"fields":{"password":{"max":20,"min":5,"required":true,"type":"string"},"staySignedIn":{"type":"bool"},"username":{"regex":"^[0-9a-zA-Z_-]+$","required":true,"type":"string"}},"type":"object"}` {
+				t.Errorf(
+					"expected `%s`, received `%s`",
+					`{"fields":{"password":{"max":20,"min":5,"required":true,"type":"string"},"staySignedIn":{"type":"bool"},"username":{"regex":"^[0-9a-zA-Z_-]+$","required":true,"type":"string"}},"type":"object"}`,
+					string(b),
+				)
 			}
 		})
 	})

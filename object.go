@@ -48,6 +48,14 @@ func (self *ObjectSchema) Field(key string, schema Schema) *ObjectSchema {
 	return self
 }
 
+func (self *ObjectSchema) Fields(fields map[string]Schema) *ObjectSchema {
+	for key, schema := range fields {
+		self.fields[key] = schema
+	}
+
+	return self
+}
+
 func (self ObjectSchema) MarshalJSON() ([]byte, error) {
 	return json.Marshal(self.schema)
 }
@@ -77,7 +85,7 @@ func (self ObjectSchema) validate(key string, value reflect.Value) error {
 }
 
 func (self ObjectSchema) validateMap(key string, value reflect.Value) error {
-	err := newErrorGroup(key)
+	err := NewErrorGroup(key)
 
 	for name, schema := range self.fields {
 		k := reflect.ValueOf(name)
@@ -100,7 +108,7 @@ func (self ObjectSchema) validateMap(key string, value reflect.Value) error {
 }
 
 func (self ObjectSchema) validateStruct(key string, value reflect.Value) error {
-	err := newErrorGroup(key)
+	err := NewErrorGroup(key)
 
 	for name, schema := range self.fields {
 		fieldName, exists := self.getStructFieldByName(name, value)

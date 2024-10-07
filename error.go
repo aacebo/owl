@@ -10,7 +10,7 @@ type Error struct {
 	Message string `json:"message,omitempty"`
 }
 
-func newError(rule string, key string, message string) Error {
+func NewError(rule string, key string, message string) Error {
 	return Error{
 		Rule:    rule,
 		Key:     key,

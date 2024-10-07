@@ -7,7 +7,7 @@ type ErrorGroup struct {
 	Errors []error `json:"errors,omitempty"`
 }
 
-func newErrorGroup(key string) ErrorGroup {
+func NewErrorGroup(key string) ErrorGroup {
 	return ErrorGroup{
 		Key:    key,
 		Errors: []error{},

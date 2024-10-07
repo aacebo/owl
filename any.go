@@ -75,7 +75,7 @@ func (self AnySchema) Validate(value any) error {
 }
 
 func (self AnySchema) validate(key string, value reflect.Value) error {
-	err := newErrorGroup(key)
+	err := NewErrorGroup(key)
 
 	for _, rule := range self.rules {
 		if rule.Resolve == nil {
@@ -85,7 +85,7 @@ func (self AnySchema) validate(key string, value reflect.Value) error {
 		v, e := rule.Resolve(value)
 
 		if e != nil {
-			err = err.Add(newError(rule.Key, key, e.Error()))
+			err = err.Add(NewError(rule.Key, key, e.Error()))
 			continue
 		}
 
