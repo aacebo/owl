@@ -117,7 +117,11 @@ func (self ObjectSchema) validateStruct(key string, value reflect.Value) error {
 			continue
 		}
 
-		field := value.FieldByName(fieldName)
+		field := reflect.Indirect(value.FieldByName(fieldName))
+
+		if field.Kind() == reflect.Interface {
+			field = field.Elem()
+		}
 
 		if e := schema.validate(name, field); e != nil {
 			err = err.Add(e)
