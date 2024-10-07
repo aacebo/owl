@@ -45,7 +45,15 @@ func Test_Int(t *testing.T) {
 	})
 
 	t.Run("min", func(t *testing.T) {
-		t.Run("should succeed", func(t *testing.T) {
+		t.Run("should succeed when nil", func(t *testing.T) {
+			err := owl.Int().Min(5).Validate(nil)
+
+			if err != nil {
+				t.Fatal(err.Error())
+			}
+		})
+
+		t.Run("should succeed when gt min", func(t *testing.T) {
 			err := owl.Int().Min(5).Validate(6)
 
 			if err != nil {
@@ -53,7 +61,7 @@ func Test_Int(t *testing.T) {
 			}
 		})
 
-		t.Run("should fail", func(t *testing.T) {
+		t.Run("should fail when lt min", func(t *testing.T) {
 			err := owl.Int().Min(5).Validate(4)
 
 			if err == nil {
@@ -63,7 +71,15 @@ func Test_Int(t *testing.T) {
 	})
 
 	t.Run("max", func(t *testing.T) {
-		t.Run("should succeed", func(t *testing.T) {
+		t.Run("should succeed when nil", func(t *testing.T) {
+			err := owl.Int().Max(5).Validate(nil)
+
+			if err != nil {
+				t.Fatal(err.Error())
+			}
+		})
+
+		t.Run("should succeed when lt max", func(t *testing.T) {
 			err := owl.Int().Max(5).Validate(4)
 
 			if err != nil {
@@ -71,7 +87,7 @@ func Test_Int(t *testing.T) {
 			}
 		})
 
-		t.Run("should fail", func(t *testing.T) {
+		t.Run("should fail when gt max", func(t *testing.T) {
 			err := owl.Int().Max(5).Validate(6)
 
 			if err == nil {

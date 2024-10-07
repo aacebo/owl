@@ -46,7 +46,15 @@ func Test_String(t *testing.T) {
 	})
 
 	t.Run("min", func(t *testing.T) {
-		t.Run("should succeed", func(t *testing.T) {
+		t.Run("should succeed when nil", func(t *testing.T) {
+			err := owl.String().Min(5).Validate(nil)
+
+			if err != nil {
+				t.Fatal(err.Error())
+			}
+		})
+
+		t.Run("should succeed when length gt min", func(t *testing.T) {
 			err := owl.String().Min(5).Validate("tester")
 
 			if err != nil {
@@ -54,7 +62,7 @@ func Test_String(t *testing.T) {
 			}
 		})
 
-		t.Run("should fail", func(t *testing.T) {
+		t.Run("should fail when length lt min", func(t *testing.T) {
 			err := owl.String().Min(5).Validate("test")
 
 			if err == nil {
@@ -64,7 +72,15 @@ func Test_String(t *testing.T) {
 	})
 
 	t.Run("max", func(t *testing.T) {
-		t.Run("should succeed", func(t *testing.T) {
+		t.Run("should succeed when nil", func(t *testing.T) {
+			err := owl.String().Max(5).Validate(nil)
+
+			if err != nil {
+				t.Fatal(err.Error())
+			}
+		})
+
+		t.Run("should succeed when length lt max", func(t *testing.T) {
 			err := owl.String().Max(5).Validate("test")
 
 			if err != nil {
@@ -72,7 +88,7 @@ func Test_String(t *testing.T) {
 			}
 		})
 
-		t.Run("should fail", func(t *testing.T) {
+		t.Run("should fail when length gt max", func(t *testing.T) {
 			err := owl.String().Max(5).Validate("tester")
 
 			if err == nil {
@@ -82,7 +98,15 @@ func Test_String(t *testing.T) {
 	})
 
 	t.Run("regex", func(t *testing.T) {
-		t.Run("should succeed", func(t *testing.T) {
+		t.Run("should succeed when nil", func(t *testing.T) {
+			err := owl.String().Regex(regexp.MustCompile("^[0-9a-zA-Z_-]+$")).Validate(nil)
+
+			if err != nil {
+				t.Fatal(err.Error())
+			}
+		})
+
+		t.Run("should succeed when matches", func(t *testing.T) {
 			err := owl.String().Regex(regexp.MustCompile("^[0-9a-zA-Z_-]+$")).Validate("test")
 
 			if err != nil {
@@ -90,7 +114,7 @@ func Test_String(t *testing.T) {
 			}
 		})
 
-		t.Run("should fail", func(t *testing.T) {
+		t.Run("should fail when not matches", func(t *testing.T) {
 			err := owl.String().Regex(regexp.MustCompile("^[0-9a-zA-Z_-]+$")).Validate("a test")
 
 			if err == nil {
@@ -100,7 +124,15 @@ func Test_String(t *testing.T) {
 	})
 
 	t.Run("email", func(t *testing.T) {
-		t.Run("should succeed", func(t *testing.T) {
+		t.Run("should succeed when nil", func(t *testing.T) {
+			err := owl.String().Email().Validate(nil)
+
+			if err != nil {
+				t.Fatal(err.Error())
+			}
+		})
+
+		t.Run("should succeed when email", func(t *testing.T) {
 			err := owl.String().Email().Validate("test@gmail.com")
 
 			if err != nil {
@@ -108,7 +140,7 @@ func Test_String(t *testing.T) {
 			}
 		})
 
-		t.Run("should fail", func(t *testing.T) {
+		t.Run("should fail when not email", func(t *testing.T) {
 			err := owl.String().Email().Validate("test")
 
 			if err == nil {
@@ -118,7 +150,15 @@ func Test_String(t *testing.T) {
 	})
 
 	t.Run("uuid", func(t *testing.T) {
-		t.Run("should succeed", func(t *testing.T) {
+		t.Run("should succeed when nil", func(t *testing.T) {
+			err := owl.String().UUID().Validate(nil)
+
+			if err != nil {
+				t.Fatal(err.Error())
+			}
+		})
+
+		t.Run("should succeed when uuid", func(t *testing.T) {
 			err := owl.String().UUID().Validate("afefc1ab-b8f2-4803-8e9a-60515854141a")
 
 			if err != nil {
@@ -126,7 +166,7 @@ func Test_String(t *testing.T) {
 			}
 		})
 
-		t.Run("should fail", func(t *testing.T) {
+		t.Run("should fail when not uuid", func(t *testing.T) {
 			err := owl.String().UUID().Validate("test")
 
 			if err == nil {
@@ -136,7 +176,15 @@ func Test_String(t *testing.T) {
 	})
 
 	t.Run("url", func(t *testing.T) {
-		t.Run("should succeed", func(t *testing.T) {
+		t.Run("should succeed when nil", func(t *testing.T) {
+			err := owl.String().URL().Validate(nil)
+
+			if err != nil {
+				t.Fatal(err.Error())
+			}
+		})
+
+		t.Run("should succeed when url", func(t *testing.T) {
 			err := owl.String().URL().Validate("https://www.google.com")
 
 			if err != nil {
@@ -144,7 +192,7 @@ func Test_String(t *testing.T) {
 			}
 		})
 
-		t.Run("should fail", func(t *testing.T) {
+		t.Run("should fail when not url", func(t *testing.T) {
 			err := owl.String().URL().Validate("test")
 
 			if err == nil {

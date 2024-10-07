@@ -44,8 +44,42 @@ func Test_Float(t *testing.T) {
 		})
 	})
 
+	t.Run("type", func(t *testing.T) {
+		t.Run("should succeed when float", func(t *testing.T) {
+			err := owl.Float().Validate(1.5)
+
+			if err != nil {
+				t.Fatal(err.Error())
+			}
+		})
+
+		t.Run("should succeed when int", func(t *testing.T) {
+			err := owl.Float().Validate(1)
+
+			if err != nil {
+				t.Fatal(err.Error())
+			}
+		})
+
+		t.Run("should fail when not int/float", func(t *testing.T) {
+			err := owl.Float().Validate(true)
+
+			if err == nil {
+				t.FailNow()
+			}
+		})
+	})
+
 	t.Run("min", func(t *testing.T) {
-		t.Run("should succeed", func(t *testing.T) {
+		t.Run("should succeed when nil", func(t *testing.T) {
+			err := owl.Float().Min(5).Validate(nil)
+
+			if err != nil {
+				t.Fatal(err.Error())
+			}
+		})
+
+		t.Run("should succeed when gt min", func(t *testing.T) {
 			err := owl.Float().Min(5).Validate(6)
 
 			if err != nil {
@@ -53,7 +87,7 @@ func Test_Float(t *testing.T) {
 			}
 		})
 
-		t.Run("should fail", func(t *testing.T) {
+		t.Run("should fail when lt min", func(t *testing.T) {
 			err := owl.Float().Min(5).Validate(4)
 
 			if err == nil {
@@ -63,7 +97,15 @@ func Test_Float(t *testing.T) {
 	})
 
 	t.Run("max", func(t *testing.T) {
-		t.Run("should succeed", func(t *testing.T) {
+		t.Run("should succeed when nil", func(t *testing.T) {
+			err := owl.Float().Max(5).Validate(nil)
+
+			if err != nil {
+				t.Fatal(err.Error())
+			}
+		})
+
+		t.Run("should succeed when lt max", func(t *testing.T) {
 			err := owl.Float().Max(5).Validate(4)
 
 			if err != nil {
@@ -71,7 +113,7 @@ func Test_Float(t *testing.T) {
 			}
 		})
 
-		t.Run("should fail", func(t *testing.T) {
+		t.Run("should fail when gt max", func(t *testing.T) {
 			err := owl.Float().Max(5).Validate(6)
 
 			if err == nil {
