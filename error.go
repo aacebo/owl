@@ -19,7 +19,7 @@ func NewError(rule string, key string, message string) Error {
 }
 
 func (self Error) Error() string {
-	b, _ := json.MarshalIndent(self, "", "  ")
+	b, _ := json.Marshal(self)
 	return string(b)
 }
 

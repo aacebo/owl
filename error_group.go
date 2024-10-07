@@ -20,7 +20,7 @@ func (self ErrorGroup) Add(err error) ErrorGroup {
 }
 
 func (self ErrorGroup) Error() string {
-	b, _ := json.MarshalIndent(self, "", "  ")
+	b, _ := json.Marshal(self)
 	return string(b)
 }
 

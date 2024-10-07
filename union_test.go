@@ -32,6 +32,27 @@ func Test_Union(t *testing.T) {
 		})
 	})
 
+	t.Run("message", func(t *testing.T) {
+		t.Run("should have custom error message", func(t *testing.T) {
+			err := owl.Union(
+				owl.String().Required(),
+				owl.Int().Required(),
+			).Message("a test message").Validate(true)
+
+			if err == nil {
+				t.FailNow()
+			}
+
+			if err.Error() != `{"errors":[{"rule":"type","message":"a test message"}]}` {
+				t.Errorf(
+					"expected `%s`, received `%s`",
+					`{"errors":[{"rule":"type","message":"required"}]}`,
+					err.Error(),
+				)
+			}
+		})
+	})
+
 	t.Run("json", func(t *testing.T) {
 		t.Run("serialize", func(t *testing.T) {
 			schema := owl.Union(

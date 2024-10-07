@@ -44,6 +44,24 @@ func Test_Bool(t *testing.T) {
 		})
 	})
 
+	t.Run("message", func(t *testing.T) {
+		t.Run("should have custom error message", func(t *testing.T) {
+			err := owl.Bool().Required().Message("a test message").Validate(nil)
+
+			if err == nil {
+				t.FailNow()
+			}
+
+			if err.Error() != `{"errors":[{"rule":"required","message":"a test message"}]}` {
+				t.Errorf(
+					"expected `%s`, received `%s`",
+					`{"errors":[{"rule":"required","message":"required"}]}`,
+					err.Error(),
+				)
+			}
+		})
+	})
+
 	t.Run("json", func(t *testing.T) {
 		t.Run("serialize", func(t *testing.T) {
 			schema := owl.Bool()

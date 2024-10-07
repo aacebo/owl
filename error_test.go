@@ -15,10 +15,10 @@ func Test_Error(t *testing.T) {
 			t.FailNow()
 		}
 
-		if len(err.Error()) != 91 {
+		if len(err.Error()) != 57 {
 			t.Errorf(
 				"expected `%d`, received `%d`",
-				91,
+				57,
 				len(err.Error()),
 			)
 		}

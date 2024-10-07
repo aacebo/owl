@@ -16,7 +16,7 @@ type StringSchema struct {
 
 func String() *StringSchema {
 	self := &StringSchema{Any()}
-	self.Rule("type", self.Type(), func(value reflect.Value) (any, error) {
+	self.Rule("type", self.Type(), func(rule Rule, value reflect.Value) (any, error) {
 		if !value.IsValid() {
 			return nil, nil
 		}
@@ -40,6 +40,11 @@ func (self *StringSchema) Rule(key string, value any, rule RuleFn) *StringSchema
 	return self
 }
 
+func (self *StringSchema) Message(message string) *StringSchema {
+	self.schema.Message(message)
+	return self
+}
+
 func (self *StringSchema) Required() *StringSchema {
 	self.schema.Required()
 	return self
@@ -57,7 +62,7 @@ func (self *StringSchema) Enum(values ...string) *StringSchema {
 }
 
 func (self *StringSchema) Min(min int) *StringSchema {
-	return self.Rule("min", min, func(value reflect.Value) (any, error) {
+	return self.Rule("min", min, func(rule Rule, value reflect.Value) (any, error) {
 		if !value.IsValid() {
 			return nil, nil
 		}
@@ -71,7 +76,7 @@ func (self *StringSchema) Min(min int) *StringSchema {
 }
 
 func (self *StringSchema) Max(max int) *StringSchema {
-	return self.Rule("max", max, func(value reflect.Value) (any, error) {
+	return self.Rule("max", max, func(rule Rule, value reflect.Value) (any, error) {
 		if !value.IsValid() {
 			return nil, nil
 		}
@@ -85,7 +90,7 @@ func (self *StringSchema) Max(max int) *StringSchema {
 }
 
 func (self *StringSchema) Regex(re *regexp.Regexp) *StringSchema {
-	return self.Rule("regex", re.String(), func(value reflect.Value) (any, error) {
+	return self.Rule("regex", re.String(), func(rule Rule, value reflect.Value) (any, error) {
 		if !value.IsValid() {
 			return nil, nil
 		}
@@ -99,7 +104,7 @@ func (self *StringSchema) Regex(re *regexp.Regexp) *StringSchema {
 }
 
 func (self *StringSchema) Email() *StringSchema {
-	return self.Rule("email", true, func(value reflect.Value) (any, error) {
+	return self.Rule("email", true, func(rule Rule, value reflect.Value) (any, error) {
 		if !value.IsValid() {
 			return nil, nil
 		}
@@ -116,7 +121,7 @@ func (self *StringSchema) Email() *StringSchema {
 }
 
 func (self *StringSchema) UUID() *StringSchema {
-	return self.Rule("uuid", true, func(value reflect.Value) (any, error) {
+	return self.Rule("uuid", true, func(rule Rule, value reflect.Value) (any, error) {
 		if !value.IsValid() {
 			return nil, nil
 		}
@@ -133,7 +138,7 @@ func (self *StringSchema) UUID() *StringSchema {
 }
 
 func (self *StringSchema) URL() *StringSchema {
-	return self.Rule("url", true, func(value reflect.Value) (any, error) {
+	return self.Rule("url", true, func(rule Rule, value reflect.Value) (any, error) {
 		if !value.IsValid() {
 			return nil, nil
 		}

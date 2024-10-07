@@ -12,7 +12,7 @@ type BoolSchema struct {
 
 func Bool() *BoolSchema {
 	self := &BoolSchema{Any()}
-	self.Rule("type", self.Type(), func(value reflect.Value) (any, error) {
+	self.Rule("type", self.Type(), func(rule Rule, value reflect.Value) (any, error) {
 		if !value.IsValid() {
 			return nil, nil
 		}
@@ -33,6 +33,11 @@ func (self BoolSchema) Type() string {
 
 func (self *BoolSchema) Rule(key string, value any, rule RuleFn) *BoolSchema {
 	self.schema.Rule(key, value, rule)
+	return self
+}
+
+func (self *BoolSchema) Message(message string) *BoolSchema {
+	self.schema.Message(message)
 	return self
 }
 

@@ -23,10 +23,10 @@ func Test_ErrorGroup(t *testing.T) {
 			t.FailNow()
 		}
 
-		if len(err.Error()) != 507 {
+		if len(err.Error()) != 238 {
 			t.Errorf(
 				"expected `%d`, received `%d`",
-				507,
+				238,
 				len(err.Error()),
 			)
 		}

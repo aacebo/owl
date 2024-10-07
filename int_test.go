@@ -44,6 +44,24 @@ func Test_Int(t *testing.T) {
 		})
 	})
 
+	t.Run("message", func(t *testing.T) {
+		t.Run("should have custom error message", func(t *testing.T) {
+			err := owl.Int().Required().Message("a test message").Validate(nil)
+
+			if err == nil {
+				t.FailNow()
+			}
+
+			if err.Error() != `{"errors":[{"rule":"required","message":"a test message"}]}` {
+				t.Errorf(
+					"expected `%s`, received `%s`",
+					`{"errors":[{"rule":"required","message":"required"}]}`,
+					err.Error(),
+				)
+			}
+		})
+	})
+
 	t.Run("min", func(t *testing.T) {
 		t.Run("should succeed when nil", func(t *testing.T) {
 			err := owl.Int().Min(5).Validate(nil)

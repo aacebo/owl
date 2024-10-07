@@ -14,7 +14,7 @@ type ObjectSchema struct {
 func Object() *ObjectSchema {
 	self := &ObjectSchema{Any(), map[string]Schema{}}
 	self.Rule("fields", self.fields, nil)
-	self.Rule("type", self.Type(), func(value reflect.Value) (any, error) {
+	self.Rule("type", self.Type(), func(rule Rule, value reflect.Value) (any, error) {
 		if !value.IsValid() {
 			return nil, nil
 		}
@@ -35,6 +35,11 @@ func (self ObjectSchema) Type() string {
 
 func (self *ObjectSchema) Rule(key string, value any, rule RuleFn) *ObjectSchema {
 	self.schema.Rule(key, value, rule)
+	return self
+}
+
+func (self *ObjectSchema) Message(message string) *ObjectSchema {
+	self.schema.Message(message)
 	return self
 }
 

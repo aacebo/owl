@@ -13,7 +13,7 @@ type AnySchema struct {
 
 func Any() *AnySchema {
 	self := &AnySchema{[]Rule{}}
-	self.Rule("type", self.Type(), func(value reflect.Value) (any, error) {
+	self.Rule("type", self.Type(), func(rule Rule, value reflect.Value) (any, error) {
 		if !value.IsValid() {
 			return nil, nil
 		}
@@ -38,8 +38,13 @@ func (self *AnySchema) Rule(key string, value any, rule RuleFn) *AnySchema {
 	return self
 }
 
+func (self *AnySchema) Message(message string) *AnySchema {
+	self.rules[len(self.rules)-1].Message = message
+	return self
+}
+
 func (self *AnySchema) Required() *AnySchema {
-	return self.Rule("required", true, func(value reflect.Value) (any, error) {
+	return self.Rule("required", true, func(rule Rule, value reflect.Value) (any, error) {
 		if !value.IsValid() {
 			return nil, errors.New("required")
 		}
@@ -49,7 +54,7 @@ func (self *AnySchema) Required() *AnySchema {
 }
 
 func (self *AnySchema) Enum(values ...any) *AnySchema {
-	return self.Rule("enum", values, func(value reflect.Value) (any, error) {
+	return self.Rule("enum", values, func(rule Rule, value reflect.Value) (any, error) {
 		if !value.IsValid() {
 			return nil, nil
 		}
@@ -86,10 +91,16 @@ func (self AnySchema) validate(key string, value reflect.Value) error {
 			continue
 		}
 
-		v, e := rule.Resolve(value)
+		v, e := rule.Resolve(rule, value)
 
 		if e != nil {
-			err = err.Add(NewError(rule.Key, key, e.Error()))
+			message := e.Error()
+
+			if rule.Message != "" {
+				message = rule.Message
+			}
+
+			err = err.Add(NewError(rule.Key, key, message))
 			continue
 		}
 
