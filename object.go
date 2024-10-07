@@ -78,17 +78,16 @@ func (self ObjectSchema) validate(key string, value reflect.Value) error {
 
 func (self ObjectSchema) validateMap(key string, value reflect.Value) error {
 	err := newErrorGroup(key)
-	i := value.MapRange()
 
-	for i.Next() {
-		k := i.Key()
-		v := reflect.Indirect(i.Value())
+	for name, schema := range self.fields {
+		k := reflect.ValueOf(name)
+		v := reflect.Indirect(value.MapIndex(k))
 
 		if v.Kind() == reflect.Interface {
 			v = v.Elem()
 		}
 
-		if e := self.validateMapField(k, v); e != nil {
+		if e := schema.validate(name, v); e != nil {
 			err = err.Add(e)
 		}
 	}
@@ -103,10 +102,16 @@ func (self ObjectSchema) validateMap(key string, value reflect.Value) error {
 func (self ObjectSchema) validateStruct(key string, value reflect.Value) error {
 	err := newErrorGroup(key)
 
-	for i := 0; i < value.NumField(); i++ {
-		field := value.Type().Field(i)
+	for name, schema := range self.fields {
+		fieldName, exists := self.getStructFieldByName(name, value)
 
-		if e := self.validateStructField(field, value.Field(i)); e != nil {
+		if !exists {
+			continue
+		}
+
+		field := value.FieldByName(fieldName)
+
+		if e := schema.validate(name, field); e != nil {
 			err = err.Add(e)
 		}
 	}
@@ -118,36 +123,27 @@ func (self ObjectSchema) validateStruct(key string, value reflect.Value) error {
 	return nil
 }
 
-func (self ObjectSchema) validateMapField(key reflect.Value, value reflect.Value) error {
-	schema, exists := self.fields[key.String()]
-
-	if !exists {
-		return errors.New("schema not found")
+func (self ObjectSchema) getStructFieldByName(name string, object reflect.Value) (string, bool) {
+	if !object.IsValid() {
+		return "", false
 	}
 
-	if err := schema.validate(key.String(), value); err != nil {
-		return err
+	for i := 0; i < object.NumField(); i++ {
+		field := object.Type().Field(i)
+		tag := field.Tag.Get("json")
+
+		if tag == "" {
+			tag = field.Name
+		}
+
+		if tag == "" || tag == "-" {
+			continue
+		}
+
+		if tag == name {
+			return field.Name, true
+		}
 	}
 
-	return nil
-}
-
-func (self ObjectSchema) validateStructField(field reflect.StructField, value reflect.Value) error {
-	name := field.Tag.Get("json")
-
-	if name == "" {
-		name = field.Name
-	}
-
-	schema, exists := self.fields[name]
-
-	if !exists {
-		return errors.New("schema not found")
-	}
-
-	if err := schema.validate(name, value); err != nil {
-		return err
-	}
-
-	return nil
+	return "", false
 }

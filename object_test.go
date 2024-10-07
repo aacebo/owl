@@ -73,6 +73,22 @@ func Test_Object(t *testing.T) {
 				t.Fatal()
 			}
 		})
+
+		t.Run("should fail when missing required field", func(t *testing.T) {
+			err := owl.Object().Field(
+				"hello",
+				owl.String().Required(),
+			).Field(
+				"world",
+				owl.Bool().Required(),
+			).Validate(map[string]any{
+				"hello": "test",
+			})
+
+			if err == nil {
+				t.Fatal()
+			}
+		})
 	})
 
 	t.Run("struct", func(t *testing.T) {
