@@ -228,10 +228,10 @@ func Test_String(t *testing.T) {
 				t.Error(err)
 			}
 
-			if string(b) != `{"email":true,"max":5,"min":1,"type":"string"}` {
+			if string(b) != `{"type":"string","min":1,"max":5,"email":true}` {
 				t.Errorf(
 					"expected `%s`, received `%s`",
-					`{"email":true,"max":5,"min":1,"type":"string"}`,
+					`{"type":"string","min":1,"max":5,"email":true}`,
 					string(b),
 				)
 			}

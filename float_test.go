@@ -149,10 +149,10 @@ func Test_Float(t *testing.T) {
 				t.Error(err)
 			}
 
-			if string(b) != `{"max":5,"min":1,"type":"float"}` {
+			if string(b) != `{"type":"float","min":1,"max":5}` {
 				t.Errorf(
 					"expected `%s`, received `%s`",
-					`{"max":5,"min":1,"type":"float"}`,
+					`{"type":"float","min":1,"max":5}`,
 					string(b),
 				)
 			}

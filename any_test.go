@@ -71,10 +71,10 @@ func Test_Any(t *testing.T) {
 				t.Error(err)
 			}
 
-			if string(b) != `{"enum":[1,true,"hi"],"required":true,"type":"any"}` {
+			if string(b) != `{"type":"any","enum":[1,true,"hi"],"required":true}` {
 				t.Errorf(
 					"expected `%s`, received `%s`",
-					`{"enum":[1,true,"hi"],"required":true,"type":"any"}`,
+					`{"type":"any","enum":[1,true,"hi"],"required":true}`,
 					string(b),
 				)
 			}

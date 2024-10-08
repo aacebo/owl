@@ -5,6 +5,9 @@ import (
 	"errors"
 	"fmt"
 	"reflect"
+	"slices"
+
+	"github.com/aacebo/owl/ordered_map"
 )
 
 type AnySchema struct {
@@ -29,11 +32,23 @@ func (self AnySchema) Type() string {
 }
 
 func (self *AnySchema) Rule(key string, value any, rule RuleFn) *AnySchema {
-	self.rules = append(self.rules, Rule{
-		Key:     key,
-		Value:   value,
-		Resolve: rule,
+	i := slices.IndexFunc(self.rules, func(rule Rule) bool {
+		return rule.Key == key
 	})
+
+	if i > -1 {
+		self.rules[i] = Rule{
+			Key:     key,
+			Value:   value,
+			Resolve: rule,
+		}
+	} else {
+		self.rules = append(self.rules, Rule{
+			Key:     key,
+			Value:   value,
+			Resolve: rule,
+		})
+	}
 
 	return self
 }
@@ -70,10 +85,10 @@ func (self *AnySchema) Enum(values ...any) *AnySchema {
 }
 
 func (self AnySchema) MarshalJSON() ([]byte, error) {
-	data := map[string]any{}
+	data := ordered_map.Map[string, any]{}
 
 	for _, rule := range self.rules {
-		data[rule.Key] = rule.Value
+		data.Set(rule.Key, rule.Value)
 	}
 
 	return json.Marshal(data)

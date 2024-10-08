@@ -123,10 +123,10 @@ func Test_Int(t *testing.T) {
 				t.Error(err)
 			}
 
-			if string(b) != `{"max":5,"min":1,"type":"int"}` {
+			if string(b) != `{"type":"int","min":1,"max":5}` {
 				t.Errorf(
 					"expected `%s`, received `%s`",
-					`{"max":5,"min":1,"type":"int"}`,
+					`{"type":"int","min":1,"max":5}`,
 					string(b),
 				)
 			}

@@ -155,10 +155,10 @@ func Test_Array(t *testing.T) {
 				t.Error(err)
 			}
 
-			if string(b) != `{"items":{"type":"string"},"required":true,"type":"array[string]"}` {
+			if string(b) != `{"type":"array[string]","items":{"type":"string"},"required":true}` {
 				t.Errorf(
 					"expected `%s`, received `%s`",
-					`{"items":{"type":"string"},"required":true,"type":"array[string]"}`,
+					`{"type":"array[string]","items":{"type":"string"},"required":true}`,
 					string(b),
 				)
 			}
