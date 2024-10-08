@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"slices"
 )
 
 type Item[K comparable, V any] struct {
@@ -13,7 +14,41 @@ type Item[K comparable, V any] struct {
 
 type Map[K comparable, V any] []Item[K, V]
 
+func (self Map[K, V]) Has(key K) bool {
+	i := slices.IndexFunc(self, func(v Item[K, V]) bool {
+		return v.Key == key
+	})
+
+	return i > -1
+}
+
+func (self Map[K, V]) Get(key K) (V, bool) {
+	var value V
+	exists := false
+
+	i := slices.IndexFunc(self, func(v Item[K, V]) bool {
+		return v.Key == key
+	})
+
+	if i > -1 {
+		value = self[i].Value
+		exists = true
+	}
+
+	return value, exists
+}
+
 func (self *Map[K, V]) Set(key K, value V) {
+	i := slices.IndexFunc(*self, func(v Item[K, V]) bool {
+		return v.Key == key
+	})
+
+	if i > -1 {
+		(*self)[i].Key = key
+		(*self)[i].Value = value
+		return
+	}
+
 	*self = append(*self, Item[K, V]{
 		Key:   key,
 		Value: value,
