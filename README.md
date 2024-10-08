@@ -50,7 +50,7 @@ if err := schema.Validate("..."); err != nil { // nil
 | Int						 | ✅				  |
 | String					 | ✅				  |
 | Object					 | ✅				  |
-| Array						 | ⏳				  |
+| Array						 | ✅				  |
 | Time						 | ✅				  |
 | Union						 | ✅				  |
 | Custom Error Messages      | ✅				  |

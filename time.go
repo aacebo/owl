@@ -15,7 +15,7 @@ type TimeSchema struct {
 
 func Time() *TimeSchema {
 	self := &TimeSchema{Any(), time.RFC3339}
-	self.Rule("type", self.Type(), func(rule Rule, value reflect.Value) (any, error) {
+	self.Rule("type", self.Type(), func(value reflect.Value) (any, error) {
 		if !value.IsValid() {
 			return nil, nil
 		}
@@ -65,7 +65,7 @@ func (self *TimeSchema) Required() *TimeSchema {
 }
 
 func (self *TimeSchema) Min(min time.Time) *TimeSchema {
-	return self.Rule("min", min, func(rule Rule, value reflect.Value) (any, error) {
+	return self.Rule("min", min, func(value reflect.Value) (any, error) {
 		if !value.IsValid() {
 			return nil, nil
 		}
@@ -81,7 +81,7 @@ func (self *TimeSchema) Min(min time.Time) *TimeSchema {
 }
 
 func (self *TimeSchema) Max(max time.Time) *TimeSchema {
-	return self.Rule("max", max, func(rule Rule, value reflect.Value) (any, error) {
+	return self.Rule("max", max, func(value reflect.Value) (any, error) {
 		if !value.IsValid() {
 			return nil, nil
 		}

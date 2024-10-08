@@ -12,7 +12,7 @@ type BoolSchema struct {
 
 func Bool() *BoolSchema {
 	self := &BoolSchema{Any()}
-	self.Rule("type", self.Type(), func(rule Rule, value reflect.Value) (any, error) {
+	self.Rule("type", self.Type(), func(value reflect.Value) (any, error) {
 		if !value.IsValid() {
 			return nil, nil
 		}

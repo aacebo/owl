@@ -13,8 +13,7 @@ type ObjectSchema struct {
 
 func Object() *ObjectSchema {
 	self := &ObjectSchema{Any(), map[string]Schema{}}
-	self.Rule("fields", self.fields, nil)
-	self.Rule("type", self.Type(), func(rule Rule, value reflect.Value) (any, error) {
+	self.Rule("type", self.Type(), func(value reflect.Value) (any, error) {
 		if !value.IsValid() {
 			return nil, nil
 		}
@@ -26,6 +25,7 @@ func Object() *ObjectSchema {
 		return value.Interface(), nil
 	})
 
+	self.Rule("fields", self.fields, nil)
 	return self
 }
 
@@ -90,7 +90,7 @@ func (self ObjectSchema) validate(key string, value reflect.Value) error {
 }
 
 func (self ObjectSchema) validateMap(key string, value reflect.Value) error {
-	err := NewErrorGroup(key)
+	err := NewEmptyError("fields", key)
 
 	for name, schema := range self.fields {
 		k := reflect.ValueOf(name)
@@ -113,7 +113,7 @@ func (self ObjectSchema) validateMap(key string, value reflect.Value) error {
 }
 
 func (self ObjectSchema) validateStruct(key string, value reflect.Value) error {
-	err := NewErrorGroup(key)
+	err := NewEmptyError("fields", key)
 
 	for name, schema := range self.fields {
 		fieldName, exists := self.getStructFieldByName(name, value)

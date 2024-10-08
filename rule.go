@@ -9,4 +9,4 @@ type Rule struct {
 	Resolve RuleFn `json:"-"`
 }
 
-type RuleFn func(rule Rule, value reflect.Value) (any, error)
+type RuleFn func(value reflect.Value) (any, error)

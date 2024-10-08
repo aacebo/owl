@@ -15,7 +15,7 @@ type UnionSchema struct {
 
 func Union(anyOf ...Schema) *UnionSchema {
 	self := &UnionSchema{Any(), anyOf}
-	self.Rule("type", self.Type(), func(rule Rule, value reflect.Value) (any, error) {
+	self.Rule("type", self.Type(), func(value reflect.Value) (any, error) {
 		for _, schema := range self.anyOf {
 			e := schema.Validate(value.Interface())
 

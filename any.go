@@ -13,7 +13,7 @@ type AnySchema struct {
 
 func Any() *AnySchema {
 	self := &AnySchema{[]Rule{}}
-	self.Rule("type", self.Type(), func(rule Rule, value reflect.Value) (any, error) {
+	self.Rule("type", self.Type(), func(value reflect.Value) (any, error) {
 		if !value.IsValid() {
 			return nil, nil
 		}
@@ -44,7 +44,7 @@ func (self *AnySchema) Message(message string) *AnySchema {
 }
 
 func (self *AnySchema) Required() *AnySchema {
-	return self.Rule("required", true, func(rule Rule, value reflect.Value) (any, error) {
+	return self.Rule("required", true, func(value reflect.Value) (any, error) {
 		if !value.IsValid() {
 			return nil, errors.New("required")
 		}
@@ -54,7 +54,7 @@ func (self *AnySchema) Required() *AnySchema {
 }
 
 func (self *AnySchema) Enum(values ...any) *AnySchema {
-	return self.Rule("enum", values, func(rule Rule, value reflect.Value) (any, error) {
+	return self.Rule("enum", values, func(value reflect.Value) (any, error) {
 		if !value.IsValid() {
 			return nil, nil
 		}
@@ -84,24 +84,30 @@ func (self AnySchema) Validate(value any) error {
 }
 
 func (self AnySchema) validate(key string, value reflect.Value) error {
-	err := NewErrorGroup(key)
+	err := NewEmptyError("", key)
 
 	for _, rule := range self.rules {
 		if rule.Resolve == nil {
 			continue
 		}
 
-		v, e := rule.Resolve(rule, value)
+		v, e := rule.Resolve(value)
 
 		if e != nil {
-			message := e.Error()
+			if group, ok := e.(ErrorGroup); ok {
+				for _, subErr := range group {
+					err = err.Add(subErr)
+				}
+			} else {
+				message := e.Error()
 
-			if rule.Message != "" {
-				message = rule.Message
+				if rule.Message != "" {
+					message = rule.Message
+				}
+
+				err = err.Add(NewError(rule.Key, key, message))
+				continue
 			}
-
-			err = err.Add(NewError(rule.Key, key, message))
-			continue
 		}
 
 		value = reflect.ValueOf(v)

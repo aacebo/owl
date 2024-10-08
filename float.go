@@ -13,7 +13,7 @@ type FloatSchema struct {
 
 func Float() *FloatSchema {
 	self := &FloatSchema{Any()}
-	self.Rule("type", self.Type(), func(rule Rule, value reflect.Value) (any, error) {
+	self.Rule("type", self.Type(), func(value reflect.Value) (any, error) {
 		if !value.IsValid() {
 			return nil, nil
 		}
@@ -63,7 +63,7 @@ func (self *FloatSchema) Enum(values ...float64) *FloatSchema {
 }
 
 func (self *FloatSchema) Min(min float64) *FloatSchema {
-	return self.Rule("min", min, func(rule Rule, value reflect.Value) (any, error) {
+	return self.Rule("min", min, func(value reflect.Value) (any, error) {
 		if !value.IsValid() {
 			return nil, nil
 		}
@@ -77,7 +77,7 @@ func (self *FloatSchema) Min(min float64) *FloatSchema {
 }
 
 func (self *FloatSchema) Max(max float64) *FloatSchema {
-	return self.Rule("max", max, func(rule Rule, value reflect.Value) (any, error) {
+	return self.Rule("max", max, func(value reflect.Value) (any, error) {
 		if !value.IsValid() {
 			return nil, nil
 		}

@@ -13,7 +13,7 @@ type IntSchema struct {
 
 func Int() *IntSchema {
 	self := &IntSchema{Any()}
-	self.Rule("type", self.Type(), func(rule Rule, value reflect.Value) (any, error) {
+	self.Rule("type", self.Type(), func(value reflect.Value) (any, error) {
 		if !value.IsValid() {
 			return nil, nil
 		}
@@ -63,7 +63,7 @@ func (self *IntSchema) Enum(values ...int) *IntSchema {
 }
 
 func (self *IntSchema) Min(min int) *IntSchema {
-	return self.Rule("min", min, func(rule Rule, value reflect.Value) (any, error) {
+	return self.Rule("min", min, func(value reflect.Value) (any, error) {
 		if !value.IsValid() {
 			return nil, nil
 		}
@@ -77,7 +77,7 @@ func (self *IntSchema) Min(min int) *IntSchema {
 }
 
 func (self *IntSchema) Max(max int) *IntSchema {
-	return self.Rule("max", max, func(rule Rule, value reflect.Value) (any, error) {
+	return self.Rule("max", max, func(value reflect.Value) (any, error) {
 		if !value.IsValid() {
 			return nil, nil
 		}
