@@ -1,21 +1,18 @@
 package owl
 
 import (
+	"bytes"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"reflect"
 	"slices"
-
-	"github.com/aacebo/owl/ordered_map"
 )
 
-type AnySchema struct {
-	rules []Rule
-}
+type AnySchema []Rule
 
 func Any() *AnySchema {
-	self := &AnySchema{[]Rule{}}
+	self := &AnySchema{}
 	self.Rule("type", self.Type(), func(value reflect.Value) (any, error) {
 		if !value.IsValid() {
 			return nil, nil
@@ -32,18 +29,18 @@ func (self AnySchema) Type() string {
 }
 
 func (self *AnySchema) Rule(key string, value any, rule RuleFn) *AnySchema {
-	i := slices.IndexFunc(self.rules, func(rule Rule) bool {
+	i := slices.IndexFunc(*self, func(rule Rule) bool {
 		return rule.Key == key
 	})
 
 	if i > -1 {
-		self.rules[i] = Rule{
+		(*self)[i] = Rule{
 			Key:     key,
 			Value:   value,
 			Resolve: rule,
 		}
 	} else {
-		self.rules = append(self.rules, Rule{
+		*self = append(*self, Rule{
 			Key:     key,
 			Value:   value,
 			Resolve: rule,
@@ -54,7 +51,7 @@ func (self *AnySchema) Rule(key string, value any, rule RuleFn) *AnySchema {
 }
 
 func (self *AnySchema) Message(message string) *AnySchema {
-	self.rules[len(self.rules)-1].Message = message
+	(*self)[len(*self)-1].Message = message
 	return self
 }
 
@@ -85,13 +82,26 @@ func (self *AnySchema) Enum(values ...any) *AnySchema {
 }
 
 func (self AnySchema) MarshalJSON() ([]byte, error) {
-	data := ordered_map.Map[string, any]{}
+	buf := &bytes.Buffer{}
+	buf.Write([]byte{'{'})
 
-	for _, rule := range self.rules {
-		data.Set(rule.Key, rule.Value)
+	for i, item := range self {
+		b, err := json.Marshal(item.Value)
+
+		if err != nil {
+			return nil, err
+		}
+
+		buf.WriteString(fmt.Sprintf("%q:", fmt.Sprintf("%v", item.Key)))
+		buf.Write(b)
+
+		if i < len(self)-1 {
+			buf.Write([]byte{','})
+		}
 	}
 
-	return json.Marshal(data)
+	buf.Write([]byte{'}'})
+	return buf.Bytes(), nil
 }
 
 func (self AnySchema) Validate(value any) error {
@@ -101,7 +111,7 @@ func (self AnySchema) Validate(value any) error {
 func (self AnySchema) validate(key string, value reflect.Value) error {
 	err := NewEmptyError("", key)
 
-	for _, rule := range self.rules {
+	for _, rule := range self {
 		if rule.Resolve == nil {
 			continue
 		}
