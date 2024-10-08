@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"reflect"
+	"strings"
 
 	"github.com/aacebo/owl/ordered_map"
 )
@@ -153,6 +154,10 @@ func (self ObjectSchema) getStructFieldByName(name string, object reflect.Value)
 
 		if tag == "" {
 			tag = field.Name
+		}
+
+		if i := strings.Index(tag, ","); i > -1 {
+			tag = tag[:i]
 		}
 
 		if tag == "" || tag == "-" {
