@@ -4,15 +4,17 @@ import (
 	"encoding/json"
 	"errors"
 	"reflect"
+
+	"github.com/aacebo/owl/ordered_map"
 )
 
 type ObjectSchema struct {
 	schema *AnySchema
-	fields map[string]Schema
+	fields ordered_map.Map[string, Schema]
 }
 
 func Object() *ObjectSchema {
-	self := &ObjectSchema{Any(), map[string]Schema{}}
+	self := &ObjectSchema{Any(), ordered_map.Map[string, Schema]{}}
 	self.Rule("type", self.Type(), func(value reflect.Value) (any, error) {
 		if !value.IsValid() {
 			return nil, nil
@@ -25,7 +27,7 @@ func Object() *ObjectSchema {
 		return value.Interface(), nil
 	})
 
-	self.Rule("fields", self.fields, nil)
+	self.Rule("fields", &self.fields, nil)
 	return self
 }
 
@@ -49,13 +51,13 @@ func (self *ObjectSchema) Required() *ObjectSchema {
 }
 
 func (self *ObjectSchema) Field(key string, schema Schema) *ObjectSchema {
-	self.fields[key] = schema
+	self.fields.Set(key, schema)
 	return self
 }
 
 func (self *ObjectSchema) Fields(fields map[string]Schema) *ObjectSchema {
 	for key, schema := range fields {
-		self.fields[key] = schema
+		self.fields.Set(key, schema)
 	}
 
 	return self
@@ -92,15 +94,15 @@ func (self ObjectSchema) validate(key string, value reflect.Value) error {
 func (self ObjectSchema) validateMap(key string, value reflect.Value) error {
 	err := NewEmptyError("fields", key)
 
-	for name, schema := range self.fields {
-		k := reflect.ValueOf(name)
+	for _, item := range self.fields {
+		k := reflect.ValueOf(item.Key)
 		v := reflect.Indirect(value.MapIndex(k))
 
 		if v.Kind() == reflect.Interface {
 			v = v.Elem()
 		}
 
-		if e := schema.validate(name, v); e != nil {
+		if e := item.Value.validate(item.Key, v); e != nil {
 			err = err.Add(e)
 		}
 	}
@@ -115,8 +117,8 @@ func (self ObjectSchema) validateMap(key string, value reflect.Value) error {
 func (self ObjectSchema) validateStruct(key string, value reflect.Value) error {
 	err := NewEmptyError("fields", key)
 
-	for name, schema := range self.fields {
-		fieldName, exists := self.getStructFieldByName(name, value)
+	for _, item := range self.fields {
+		fieldName, exists := self.getStructFieldByName(item.Key, value)
 
 		if !exists {
 			continue
@@ -128,7 +130,7 @@ func (self ObjectSchema) validateStruct(key string, value reflect.Value) error {
 			field = field.Elem()
 		}
 
-		if e := schema.validate(name, field); e != nil {
+		if e := item.Value.validate(item.Key, field); e != nil {
 			err = err.Add(e)
 		}
 	}

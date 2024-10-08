@@ -180,10 +180,10 @@ func Test_Object(t *testing.T) {
 				t.Error(err)
 			}
 
-			if string(b) != `{"type":"object","fields":{"password":{"type":"string","min":5,"max":20,"required":true},"staySignedIn":{"type":"bool"},"username":{"type":"string","regex":"^[0-9a-zA-Z_-]+$","required":true}}}` {
+			if string(b) != `{"type":"object","fields":{"username":{"type":"string","regex":"^[0-9a-zA-Z_-]+$","required":true},"password":{"type":"string","min":5,"max":20,"required":true},"staySignedIn":{"type":"bool"}}}` {
 				t.Errorf(
 					"expected `%s`, received `%s`",
-					`{"type":"object","fields":{"password":{"type":"string","min":5,"max":20,"required":true},"staySignedIn":{"type":"bool"},"username":{"type":"string","regex":"^[0-9a-zA-Z_-]+$","required":true}}}`,
+					`{"type":"object","fields":{"username":{"type":"string","regex":"^[0-9a-zA-Z_-]+$","required":true},"password":{"type":"string","min":5,"max":20,"required":true},"staySignedIn":{"type":"bool"}}}`,
 					string(b),
 				)
 			}
