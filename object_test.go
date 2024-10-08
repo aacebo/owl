@@ -168,11 +168,13 @@ func Test_Object(t *testing.T) {
 
 	t.Run("json", func(t *testing.T) {
 		t.Run("serialize", func(t *testing.T) {
-			schema := owl.Object().Fields(map[string]owl.Schema{
-				"username":     owl.String().Regex(regexp.MustCompile("^[0-9a-zA-Z_-]+$")).Required(),
-				"password":     owl.String().Min(5).Max(20).Required(),
-				"staySignedIn": owl.Bool(),
-			})
+			schema := owl.Object().Field(
+				"username", owl.String().Regex(regexp.MustCompile("^[0-9a-zA-Z_-]+$")).Required(),
+			).Field(
+				"password", owl.String().Min(5).Max(20).Required(),
+			).Field(
+				"staySignedIn", owl.Bool(),
+			)
 
 			b, err := json.Marshal(schema)
 
