@@ -166,6 +166,53 @@ func Test_Object(t *testing.T) {
 		})
 	})
 
+	t.Run("extend", func(t *testing.T) {
+		t.Run("should add fields", func(t *testing.T) {
+			a := owl.Object().Fields(map[string]owl.Schema{
+				"a": owl.Int().Required(),
+				"b": owl.Int().Required(),
+				"c": owl.Int().Required(),
+			})
+
+			b := owl.Object().Fields(map[string]owl.Schema{
+				"d": owl.String().Required(),
+				"e": owl.Bool().Required(),
+			})
+
+			c := a.Extend(b)
+			err := a.Validate(map[string]any{
+				"a": 1,
+				"b": 2,
+				"c": 3,
+			})
+
+			if err != nil {
+				t.Error(err)
+			}
+
+			err = b.Validate(map[string]any{
+				"d": "test",
+				"e": true,
+			})
+
+			if err != nil {
+				t.Error(err)
+			}
+
+			err = c.Validate(map[string]any{
+				"a": 1,
+				"b": 2,
+				"c": 3,
+				"d": "test",
+				"e": true,
+			})
+
+			if err != nil {
+				t.Error(err)
+			}
+		})
+	})
+
 	t.Run("json", func(t *testing.T) {
 		t.Run("serialize", func(t *testing.T) {
 			schema := owl.Object().Field(

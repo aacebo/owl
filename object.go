@@ -64,6 +64,20 @@ func (self *ObjectSchema) Fields(fields map[string]Schema) *ObjectSchema {
 	return self
 }
 
+func (self *ObjectSchema) Extend(schema *ObjectSchema) *ObjectSchema {
+	res := Object()
+
+	for _, item := range self.fields {
+		res.fields.Set(item.Key, item.Value)
+	}
+
+	for _, item := range schema.fields {
+		res.fields.Set(item.Key, item.Value)
+	}
+
+	return res
+}
+
 func (self ObjectSchema) MarshalJSON() ([]byte, error) {
 	return json.Marshal(self.schema)
 }
