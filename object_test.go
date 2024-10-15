@@ -243,15 +243,67 @@ func TestObject(t *testing.T) {
 func BenchmarkObject(b *testing.B) {
 	b.Run("simple", func(b *testing.B) {
 		schema := owl.Object().Fields(map[string]owl.Schema{
-			"email":    owl.String().Required(),
-			"password": owl.String().Required(),
+			"email":    owl.String(),
+			"password": owl.String(),
 		})
 
+		data := map[string]string{
+			"email":    "test",
+			"password": "test",
+		}
+
 		for i := 0; i < b.N; i++ {
-			err := schema.Validate(map[string]string{
+			err := schema.Validate(data)
+
+			if err != nil {
+				b.Fatal(err)
+			}
+		}
+	})
+
+	b.Run("array", func(b *testing.B) {
+		schema := owl.Object().Fields(map[string]owl.Schema{
+			"email":    owl.String(),
+			"password": owl.String(),
+			"phones":   owl.Array(owl.String()),
+		})
+
+		data := map[string]any{
+			"email":    "test",
+			"password": "test",
+			"phonees":  []string{"1112223333"},
+		}
+
+		for i := 0; i < b.N; i++ {
+			err := schema.Validate(data)
+
+			if err != nil {
+				b.Fatal(err)
+			}
+		}
+	})
+
+	b.Run("object", func(b *testing.B) {
+		schema := owl.Object().Fields(map[string]owl.Schema{
+			"email":    owl.String(),
+			"password": owl.String(),
+			"created_by": owl.Object().Fields(map[string]owl.Schema{
+				"email":    owl.String(),
+				"password": owl.String(),
+			}),
+		})
+
+		data := map[string]any{
+			"email":    "test",
+			"password": "test",
+			"phonees": map[string]string{
 				"email":    "test",
 				"password": "test",
-			})
+			},
+		}
+
+		for i := 0; i < b.N; i++ {
+			err := schema.Validate(data)
 
 			if err != nil {
 				b.Fatal(err)
