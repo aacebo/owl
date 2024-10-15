@@ -8,7 +8,7 @@ import (
 	"github.com/aacebo/owl"
 )
 
-func Test_Time(t *testing.T) {
+func TestTime(t *testing.T) {
 	t.Run("required", func(t *testing.T) {
 		t.Run("should succeed", func(t *testing.T) {
 			err := owl.Time().Required().Validate(time.Now().Format(time.RFC3339))

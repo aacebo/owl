@@ -6,7 +6,7 @@ import (
 	"github.com/aacebo/owl"
 )
 
-func Test_Error(t *testing.T) {
+func TestError(t *testing.T) {
 	t.Run("should serialize", func(t *testing.T) {
 		schema := owl.String()
 		err := schema.Validate(1)

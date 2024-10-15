@@ -7,7 +7,7 @@ import (
 	"github.com/aacebo/owl"
 )
 
-func Test_Any(t *testing.T) {
+func TestAny(t *testing.T) {
 	t.Run("required", func(t *testing.T) {
 		t.Run("should succeed", func(t *testing.T) {
 			err := owl.Any().Required().Validate("test")

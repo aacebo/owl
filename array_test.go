@@ -7,7 +7,7 @@ import (
 	"github.com/aacebo/owl"
 )
 
-func Test_Array(t *testing.T) {
+func TestArray(t *testing.T) {
 	t.Run("required", func(t *testing.T) {
 		t.Run("should succeed", func(t *testing.T) {
 			err := owl.Array(owl.String()).Required().Validate([]any{})

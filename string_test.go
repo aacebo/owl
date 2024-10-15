@@ -8,7 +8,7 @@ import (
 	"github.com/aacebo/owl"
 )
 
-func Test_String(t *testing.T) {
+func TestString(t *testing.T) {
 	t.Run("required", func(t *testing.T) {
 		t.Run("should succeed", func(t *testing.T) {
 			err := owl.String().Required().Validate("test")

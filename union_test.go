@@ -7,7 +7,7 @@ import (
 	"github.com/aacebo/owl"
 )
 
-func Test_Union(t *testing.T) {
+func TestUnion(t *testing.T) {
 	t.Run("union", func(t *testing.T) {
 		t.Run("should succeed", func(t *testing.T) {
 			err := owl.Union(

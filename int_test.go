@@ -7,7 +7,7 @@ import (
 	"github.com/aacebo/owl"
 )
 
-func Test_Int(t *testing.T) {
+func TestInt(t *testing.T) {
 	t.Run("required", func(t *testing.T) {
 		t.Run("should succeed", func(t *testing.T) {
 			err := owl.Int().Required().Validate(1)

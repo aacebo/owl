@@ -7,7 +7,7 @@ import (
 	"github.com/aacebo/owl"
 )
 
-func Test_Float(t *testing.T) {
+func TestFloat(t *testing.T) {
 	t.Run("required", func(t *testing.T) {
 		t.Run("should succeed", func(t *testing.T) {
 			err := owl.Float().Required().Validate(1)
