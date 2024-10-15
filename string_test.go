@@ -239,6 +239,92 @@ func TestString(t *testing.T) {
 	})
 }
 
+func BenchmarkString(b *testing.B) {
+	b.Run("string", func(b *testing.B) {
+		schema := owl.String()
+
+		for i := 0; i < b.N; i++ {
+			err := schema.Validate("test")
+
+			if err != nil {
+				b.Fatal(err)
+			}
+		}
+	})
+
+	b.Run("min", func(b *testing.B) {
+		schema := owl.String().Min(4)
+
+		for i := 0; i < b.N; i++ {
+			err := schema.Validate("test")
+
+			if err != nil {
+				b.Fatal(err)
+			}
+		}
+	})
+
+	b.Run("max", func(b *testing.B) {
+		schema := owl.String().Max(4)
+
+		for i := 0; i < b.N; i++ {
+			err := schema.Validate("test")
+
+			if err != nil {
+				b.Fatal(err)
+			}
+		}
+	})
+
+	b.Run("regex", func(b *testing.B) {
+		schema := owl.String().Regex(regexp.MustCompile("^[0-9a-zA-Z_-]+$"))
+
+		for i := 0; i < b.N; i++ {
+			err := schema.Validate("test")
+
+			if err != nil {
+				b.Fatal(err)
+			}
+		}
+	})
+
+	b.Run("email", func(b *testing.B) {
+		schema := owl.String().Email()
+
+		for i := 0; i < b.N; i++ {
+			err := schema.Validate("test@gmail.com")
+
+			if err != nil {
+				b.Fatal(err)
+			}
+		}
+	})
+
+	b.Run("uuid", func(b *testing.B) {
+		schema := owl.String().UUID()
+
+		for i := 0; i < b.N; i++ {
+			err := schema.Validate("bdc8ffad-a82a-4a03-bd8c-e3ddd6ed98de")
+
+			if err != nil {
+				b.Fatal(err)
+			}
+		}
+	})
+
+	b.Run("url", func(b *testing.B) {
+		schema := owl.String().URL()
+
+		for i := 0; i < b.N; i++ {
+			err := schema.Validate("https://www.google.com")
+
+			if err != nil {
+				b.Fatal(err)
+			}
+		}
+	})
+}
+
 func ExampleString() {
 	schema := owl.String()
 
