@@ -151,6 +151,47 @@ func TestTime(t *testing.T) {
 	})
 }
 
+func BenchmarkTime(b *testing.B) {
+	b.Run("time", func(b *testing.B) {
+		schema := owl.Time()
+		now := time.Now()
+
+		for i := 0; i < b.N; i++ {
+			err := schema.Validate(now)
+
+			if err != nil {
+				b.Fatal(err)
+			}
+		}
+	})
+
+	b.Run("min", func(b *testing.B) {
+		schema := owl.Time().Min(time.Now())
+		now := time.Now()
+
+		for i := 0; i < b.N; i++ {
+			err := schema.Validate(now)
+
+			if err != nil {
+				b.Fatal(err)
+			}
+		}
+	})
+
+	b.Run("max", func(b *testing.B) {
+		schema := owl.Time().Max(time.Now())
+		now := time.Now().Add(-1 * time.Hour)
+
+		for i := 0; i < b.N; i++ {
+			err := schema.Validate(now)
+
+			if err != nil {
+				b.Fatal(err)
+			}
+		}
+	})
+}
+
 func ExampleTime() {
 	schema := owl.Time()
 

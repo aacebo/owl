@@ -78,6 +78,20 @@ func TestBool(t *testing.T) {
 	})
 }
 
+func BenchmarkBool(b *testing.B) {
+	b.Run("bool", func(b *testing.B) {
+		schema := owl.Bool()
+
+		for i := 0; i < b.N; i++ {
+			err := schema.Validate(true)
+
+			if err != nil {
+				b.Fatal(err)
+			}
+		}
+	})
+}
+
 func ExampleBool() {
 	schema := owl.Bool()
 

@@ -160,6 +160,56 @@ func TestFloat(t *testing.T) {
 	})
 }
 
+func BenchmarkFloat(b *testing.B) {
+	b.Run("float32", func(b *testing.B) {
+		schema := owl.Float()
+
+		for i := 0; i < b.N; i++ {
+			err := schema.Validate(float32(1.5))
+
+			if err != nil {
+				b.Fatal(err)
+			}
+		}
+	})
+
+	b.Run("float64", func(b *testing.B) {
+		schema := owl.Float()
+
+		for i := 0; i < b.N; i++ {
+			err := schema.Validate(float64(1.5))
+
+			if err != nil {
+				b.Fatal(err)
+			}
+		}
+	})
+
+	b.Run("min", func(b *testing.B) {
+		schema := owl.Float().Min(5)
+
+		for i := 0; i < b.N; i++ {
+			err := schema.Validate(5)
+
+			if err != nil {
+				b.Fatal(err)
+			}
+		}
+	})
+
+	b.Run("max", func(b *testing.B) {
+		schema := owl.Float().Max(5)
+
+		for i := 0; i < b.N; i++ {
+			err := schema.Validate(5)
+
+			if err != nil {
+				b.Fatal(err)
+			}
+		}
+	})
+}
+
 func ExampleFloat() {
 	schema := owl.Float()
 

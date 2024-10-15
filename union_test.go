@@ -77,6 +77,30 @@ func TestUnion(t *testing.T) {
 	})
 }
 
+func BenchmarkUnion(b *testing.B) {
+	b.Run("string or int", func(b *testing.B) {
+		values := []any{"test", 1}
+		schema := owl.Union(
+			owl.String().Required(),
+			owl.Int().Required(),
+		)
+
+		for i := 0; i < b.N; i++ {
+			var err error
+
+			if i%2 == 0 {
+				err = schema.Validate(values[0])
+			} else {
+				err = schema.Validate(values[1])
+			}
+
+			if err != nil {
+				b.Fatal(err)
+			}
+		}
+	})
+}
+
 func ExampleUnion() {
 	schema := owl.Union(
 		owl.String().Required(),

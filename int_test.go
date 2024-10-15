@@ -134,6 +134,56 @@ func TestInt(t *testing.T) {
 	})
 }
 
+func BenchmarkInt(b *testing.B) {
+	b.Run("int32", func(b *testing.B) {
+		schema := owl.Int()
+
+		for i := 0; i < b.N; i++ {
+			err := schema.Validate(int32(1))
+
+			if err != nil {
+				b.Fatal(err)
+			}
+		}
+	})
+
+	b.Run("int64", func(b *testing.B) {
+		schema := owl.Int()
+
+		for i := 0; i < b.N; i++ {
+			err := schema.Validate(int64(1))
+
+			if err != nil {
+				b.Fatal(err)
+			}
+		}
+	})
+
+	b.Run("min", func(b *testing.B) {
+		schema := owl.Int().Min(5)
+
+		for i := 0; i < b.N; i++ {
+			err := schema.Validate(5)
+
+			if err != nil {
+				b.Fatal(err)
+			}
+		}
+	})
+
+	b.Run("max", func(b *testing.B) {
+		schema := owl.Int().Max(5)
+
+		for i := 0; i < b.N; i++ {
+			err := schema.Validate(5)
+
+			if err != nil {
+				b.Fatal(err)
+			}
+		}
+	})
+}
+
 func ExampleInt() {
 	schema := owl.Int()
 
