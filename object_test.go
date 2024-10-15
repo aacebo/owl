@@ -240,6 +240,24 @@ func TestObject(t *testing.T) {
 	})
 }
 
+func BenchmarkObject(t *testing.B) {
+	schema := owl.Object().Fields(map[string]owl.Schema{
+		"email":    owl.String().Required(),
+		"password": owl.String().Required(),
+	})
+
+	for i := 0; i < t.N; i++ {
+		err := schema.Validate(map[string]string{
+			"email":    "test",
+			"password": "test",
+		})
+
+		if err != nil {
+			t.Fatal(err)
+		}
+	}
+}
+
 func ExampleObject() {
 	schema := owl.Object().Field(
 		"email", owl.String().Email().Required(),
