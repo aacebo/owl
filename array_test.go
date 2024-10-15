@@ -166,6 +166,47 @@ func TestArray(t *testing.T) {
 	})
 }
 
+func BenchmarkArray(b *testing.B) {
+	b.Run("array", func(b *testing.B) {
+		schema := owl.Array(owl.String())
+		value := []string{"test"}
+
+		for i := 0; i < b.N; i++ {
+			err := schema.Validate(value)
+
+			if err != nil {
+				b.Fatal(err)
+			}
+		}
+	})
+
+	b.Run("min", func(b *testing.B) {
+		schema := owl.Array(owl.String()).Min(3)
+		value := []string{"a", "b", "c"}
+
+		for i := 0; i < b.N; i++ {
+			err := schema.Validate(value)
+
+			if err != nil {
+				b.Fatal(err)
+			}
+		}
+	})
+
+	b.Run("max", func(b *testing.B) {
+		schema := owl.Array(owl.String()).Max(3)
+		value := []string{"a", "b", "c"}
+
+		for i := 0; i < b.N; i++ {
+			err := schema.Validate(value)
+
+			if err != nil {
+				b.Fatal(err)
+			}
+		}
+	})
+}
+
 func ExampleArray() {
 	schema := owl.Array(owl.String().Required())
 

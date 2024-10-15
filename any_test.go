@@ -3,6 +3,9 @@ package owl_test
 import (
 	"encoding/json"
 	"testing"
+	"time"
+
+	"math/rand"
 
 	"github.com/aacebo/owl"
 )
@@ -79,6 +82,35 @@ func TestAny(t *testing.T) {
 				)
 			}
 		})
+	})
+}
+
+func BenchmarkAny(b *testing.B) {
+	b.Run("any", func(b *testing.B) {
+		schema := owl.Any()
+
+		for i := 0; i < b.N; i++ {
+			err := schema.Validate(1)
+
+			if err != nil {
+				b.Fatal(err)
+			}
+		}
+	})
+
+	b.Run("enum", func(b *testing.B) {
+		enum := []any{"test", 1, true}
+		schema := owl.Any().Enum(enum...)
+		s := rand.NewSource(time.Now().Unix())
+		r := rand.New(s)
+
+		for i := 0; i < b.N; i++ {
+			err := schema.Validate(enum[r.Intn(3)])
+
+			if err != nil {
+				b.Fatal(err)
+			}
+		}
 	})
 }
 

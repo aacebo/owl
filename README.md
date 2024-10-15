@@ -55,3 +55,7 @@ if err := schema.Validate("..."); err != nil { // nil
 | Union						 | ✅				  |
 | Custom Error Messages      | ✅				  |
 | Custom Rules				 | ✅				  |
+
+# Benchmarks
+
+![Benchmarks](./assets/benchmarks.png)
