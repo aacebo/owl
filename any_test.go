@@ -2,6 +2,9 @@ package owl_test
 
 import (
 	"encoding/json"
+	"errors"
+	"net"
+	"reflect"
 	"testing"
 	"time"
 
@@ -59,6 +62,52 @@ func TestAny(t *testing.T) {
 				t.Errorf(
 					"expected `%s`, received `%s`",
 					`{"errors":[{"rule":"required","message":"required"}]}`,
+					err.Error(),
+				)
+			}
+		})
+	})
+
+	t.Run("rule", func(t *testing.T) {
+		t.Run("should succeed on valid ipv4 address", func(t *testing.T) {
+			err := owl.Any().Rule("ipv4", nil, func(value reflect.Value) (any, error) {
+				if !value.IsValid() {
+					return nil, nil
+				}
+
+				if ip := net.ParseIP(value.String()); ip == nil {
+					return nil, errors.New("must be a valid ipv4 address")
+				}
+
+				return value.String(), nil
+			}).Validate("192.168.0.1")
+
+			if err != nil {
+				t.Fatal(err)
+			}
+		})
+
+		t.Run("should error on invalid ipaddress", func(t *testing.T) {
+			err := owl.Any().Rule("ipv4", nil, func(value reflect.Value) (any, error) {
+				if !value.IsValid() {
+					return nil, nil
+				}
+
+				if ip := net.ParseIP(value.String()); ip == nil {
+					return nil, errors.New("must be a valid ipv4 address")
+				}
+
+				return value.String(), nil
+			}).Validate("192.168.0")
+
+			if err == nil {
+				t.FailNow()
+			}
+
+			if err.Error() != `{"errors":[{"rule":"ipv4","message":"must be a valid ipv4 address"}]}` {
+				t.Errorf(
+					"expected `%s`, received `%s`",
+					`{"errors":[{"rule":"ipv4","message":"must be a valid ipv4 address"}]}`,
 					err.Error(),
 				)
 			}
@@ -126,6 +175,28 @@ func ExampleAny() {
 	}
 
 	if err := schema.Validate(true); err != nil { // nil
+		panic(err)
+	}
+}
+
+func ExampleAnySchema_Rule() {
+	schema := owl.Any().Rule("ipv4", nil, func(value reflect.Value) (any, error) {
+		if !value.IsValid() {
+			return nil, nil
+		}
+
+		if ip := net.ParseIP(value.String()); ip == nil {
+			return nil, errors.New("must be a valid ipv4 address")
+		}
+
+		return value.String(), nil
+	})
+
+	if err := schema.Validate("192.168.0.1"); err != nil { // nil
+		panic(err)
+	}
+
+	if err := schema.Validate("192.168.0"); err != nil { // error
 		panic(err)
 	}
 }
